@@ -1,0 +1,37 @@
+openapi: 3.0.1
+info:
+  title: Test Spec
+  version: 0.0.0
+servers:
+  - url: 'https://localhost:8000'
+  - url: 'http://localhost:8000'
+paths:
+  /test:
+    get:
+      operationId: dummyTestEndpoint
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Thing'
+  /test-async:
+    get:
+      operationId: dummyTestEndpointCoro
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Thing'
+components:
+  schemas:
+    Thing:
+      type: object
+      properties:
+        foo:
+          type: string
+        baz:
+          type: integer
