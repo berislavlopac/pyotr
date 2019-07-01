@@ -1,21 +1,27 @@
 [tool.poetry]
 name = "pyotr"
-version = "0.1.0"
-description = "OpenAPI-to-REST server and client frameworks for Python."
+version = "0.1.1"
+description = "Python OpenAPI-to-REST (and back) framework "
 authors = ["Berislav Lopac <berislav@lopac.net>"]
 license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/berislavlopac/pyotr"
+repository = "https://github.com/berislavlopac/pyotr"
 
 [tool.poetry.dependencies]
 python = "^3.7"
 openapi-core = "^0.11.0"
 pyyaml = "^5.1"
 starlette = "^0.12.1"
-uvicorn = "^0.8.2"
 stringcase = "^1.2"
 http3 = "^0.6.3"
 requests = "^2.22"
 pytest-cov = "^2.7"
 typing-extensions = "^3.7"
+uvicorn = {version = "^0.8.3", optional = true}
+
+[tool.poetry.extras]
+uvicorn = ["uvicorn"]
 
 [tool.poetry.dev-dependencies]
 pytest = "^4.6"
