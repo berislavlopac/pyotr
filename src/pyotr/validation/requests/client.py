@@ -1,5 +1,5 @@
 from string import Formatter
-from urllib.parse import urlencode, urlsplit, urlunsplit
+from urllib.parse import parse_qs, urlencode, urlsplit, urlunsplit
 
 from openapi_core.schema.operations.models import Operation
 from openapi_core.wrappers.base import BaseOpenAPIRequest
@@ -12,13 +12,13 @@ class ClientOpenAPIRequest(BaseOpenAPIRequest):
         self.method = op_spec.http_method.lower()
 
         self.host_url = host_url
-        self._url_parts = urlsplit(self.host_url)._asdict()
+        self._url_parts = urlsplit(self.host_url)
 
         self.path_pattern = op_spec.path_name
 
         self.parameters = {
             'path': {},
-            'query': {},
+            'query': parse_qs(self._url_parts.query),
             'header': {},
             'cookie': {},
         }
@@ -28,14 +28,17 @@ class ClientOpenAPIRequest(BaseOpenAPIRequest):
 
         formatter = Formatter()
         self.url_vars = [
-            var for _, var, _, _ in formatter.parse(op_spec.path_name) if var is not None
+            var for _, var, _, _
+            in formatter.parse(op_spec.path_name)
+            if var is not None
         ]
 
     @property
     def url(self):
-        self._url_parts['path'] = self.path
-        self._url_parts['query'] = urlencode(self.parameters['query'])
-        return urlunsplit(self._url_parts.values())
+        url_parts = self._url_parts._asdict()
+        url_parts['path'] += self.path
+        url_parts['query'] = urlencode(self.parameters['query'])
+        return urlunsplit(url_parts.values())
 
     @property
     def path(self):

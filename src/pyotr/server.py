@@ -38,11 +38,12 @@ class Application(Starlette):
             name = snakecase(name)
         try:
             module = import_module(base)
-        except ModuleNotFoundError:
-            raise RuntimeError(f'The module {base} does not exist!')
-        endpoint = getattr(module, name, None)
-        if endpoint is None:
-            raise RuntimeError(f'The function {base}.{name} does not exist!')
+        except ModuleNotFoundError as e:
+            raise RuntimeError(f'The module {base} does not exist!') from e
+        try:
+            endpoint = getattr(module, name)
+        except AttributeError as e:
+            raise RuntimeError(f'The function {base}.{name} does not exist!') from e
 
         @wraps(endpoint)
         async def wrapper(request, **kwargs) -> Response:
@@ -56,11 +57,11 @@ class Application(Starlette):
                 response = endpoint(request, **kwargs)
             if not isinstance(response, Response):
                 response = JSONResponse(response)
+
             # TODO: a list of endpoint names to specify which responses to skip
             if self.validate_responses:
                 ResponseValidator(self.spec).validate(
-                    StarletteOpenAPIRequest(request),
-                    StarletteOpenAPIResponse(response)
+                    validation_request, StarletteOpenAPIResponse(response)
                 ).raise_for_errors()
             return response
 

@@ -27,11 +27,14 @@ class Client:
         self.client = client
         self.request_class = request_class
         self.response_class = response_class
+
         if server_url is None:
             server_url = self.spec.servers[0].url
-        elif server_url not in self.spec.servers:
-            raise RuntimeError(f"Unknown server: {server_url}")
+        server_url = server_url.rstrip('/')
+        if server_url not in self.spec.servers:
+            self.spec.servers.append(server_url)
         self.server_url = server_url
+
         self.operations = {
             snakecase(op_spec.operation_id): self._get_operation(op_spec)
             for path_spec in spec.paths.values()
@@ -53,11 +56,13 @@ class Client:
                       ):
             request = self.request_class(self.server_url, op_spec)
             request.prepare(*args, data_=body_, headers_=headers_, **kwargs)
-            response = self.response_class(
-                self.client.request(method=request.method, url=request.url, data=request.body)
+            api_response = self.client.request(
+                method=request.method, url=request.url, data=request.body
             )
+            api_response.raise_for_status()
+            response = self.response_class(api_response)
             self.validator.validate(request, response).raise_for_errors()
-            return response.payload
+            return response
         return operation
 
     @classmethod
