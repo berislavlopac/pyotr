@@ -81,9 +81,8 @@ class OpenAPIRequestValidationMiddleware(BaseHTTPMiddleware):
         self.spec = spec
 
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
-        request_validation = RequestValidator(self.spec).validate(
-            StarletteOpenAPIRequest(request)
-        )
+        request = await StarletteOpenAPIRequest.prepare(request)
+        request_validation = RequestValidator(self.spec).validate(request)
         request_validation.raise_for_errors()
-        response = await call_next(request)
+        response = await call_next(request.request)
         return response

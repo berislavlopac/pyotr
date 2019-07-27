@@ -7,6 +7,13 @@ class StarletteOpenAPIRequest(BaseOpenAPIRequest):
 
     def __init__(self, request: Request):
         self.request = request
+        self.body = None
+
+    @classmethod
+    async def prepare(cls, request):
+        req = cls(request)
+        req.body = await req.request.body()
+        return req
 
     @property
     def host_url(self):
@@ -39,10 +46,6 @@ class StarletteOpenAPIRequest(BaseOpenAPIRequest):
             'header': self.request.headers,
             'cookie': self.request.cookies,
         }
-
-    @property
-    def body(self):
-        return self.request.body()
 
     @property
     def mimetype(self):
