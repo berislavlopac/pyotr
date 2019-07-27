@@ -7,7 +7,7 @@ class StarletteOpenAPIRequest(BaseOpenAPIRequest):
 
     def __init__(self, request: Request):
         self.request = request
-        self.body = None
+        self.body = b''
 
     @classmethod
     async def prepare(cls, request):

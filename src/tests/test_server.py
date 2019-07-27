@@ -1,10 +1,9 @@
 from inspect import iscoroutinefunction
 
 import pytest
+from pyotr.server import Application
 from starlette.requests import Request
 from starlette.responses import JSONResponse
-
-from pyotr.server import Application
 
 
 def test_server_from_file_yaml(config):
@@ -55,6 +54,10 @@ def test_server_wraps_endpoint_function(spec_dict, config):
 
 @pytest.mark.asyncio
 async def test_server_wraps_endpoint_function_result_with_jsonresponse(spec_dict, config):
+
+    async def dummy_receive():
+        return {'type': 'http.request'}
+
     app = Application(spec_dict, config.endpoint_base)
     for route in app.routes:
         request = Request({
@@ -64,6 +67,6 @@ async def test_server_wraps_endpoint_function_result_with_jsonresponse(spec_dict
             'headers': {},
             'app': app,
             'method': 'get',
-        })
+        }, dummy_receive)
         response = await route.endpoint(request)
         assert isinstance(response, JSONResponse)

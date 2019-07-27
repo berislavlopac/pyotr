@@ -7,16 +7,12 @@ from typing import Callable, Union
 from openapi_core import create_spec
 from openapi_core.schema.specs.models import Spec
 from openapi_core.shortcuts import RequestValidator, ResponseValidator
-from starlette.applications import Starlette
-from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
-from starlette.requests import Request
-from starlette.responses import JSONResponse, Response
-from starlette.types import ASGIApp
-from stringcase import snakecase
-
 from pyotr.utils import get_spec_from_file
 from pyotr.validation.requests import StarletteOpenAPIRequest
 from pyotr.validation.responses import StarletteOpenAPIResponse
+from starlette.applications import Starlette
+from starlette.responses import JSONResponse, Response
+from stringcase import snakecase
 
 
 class Application(Starlette):
@@ -29,8 +25,6 @@ class Application(Starlette):
             spec = create_spec(spec)
         self.spec = spec
         self.validate_responses = validate_responses
-
-        self.add_middleware(OpenAPIRequestValidationMiddleware, spec=spec)
 
         for path, path_spec in spec.paths.items():
             for method, operation in path_spec.operations.items():
@@ -52,6 +46,10 @@ class Application(Starlette):
 
         @wraps(endpoint)
         async def wrapper(request, **kwargs) -> Response:
+            validation_request = await StarletteOpenAPIRequest.prepare(request)
+            request_validation = RequestValidator(self.spec).validate(validation_request)
+            request_validation.raise_for_errors()
+
             if iscoroutinefunction(endpoint):
                 response = await endpoint(request, **kwargs)
             else:
@@ -72,17 +70,3 @@ class Application(Starlette):
     def from_file(cls, path: Union[Path, str], *args, **kwargs) -> 'Application':
         spec = get_spec_from_file(path)
         return cls(spec, *args, **kwargs)
-
-
-class OpenAPIRequestValidationMiddleware(BaseHTTPMiddleware):
-
-    def __init__(self, app: ASGIApp, spec: Spec, **kwargs):
-        super().__init__(app, **kwargs)
-        self.spec = spec
-
-    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
-        request = await StarletteOpenAPIRequest.prepare(request)
-        request_validation = RequestValidator(self.spec).validate(request)
-        request_validation.raise_for_errors()
-        response = await call_next(request.request)
-        return response
