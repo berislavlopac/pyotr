@@ -7,12 +7,13 @@ from typing import Callable, Union
 from openapi_core import create_spec
 from openapi_core.schema.specs.models import Spec
 from openapi_core.shortcuts import RequestValidator, ResponseValidator
-from pyotr.utils import get_spec_from_file
-from pyotr.validation.requests import StarletteOpenAPIRequest
-from pyotr.validation.responses import StarletteOpenAPIResponse
 from starlette.applications import Starlette
 from starlette.responses import JSONResponse, Response
 from stringcase import snakecase
+
+from pyotr.utils import get_spec_from_file
+from pyotr.validation.requests import StarletteOpenAPIRequest
+from pyotr.validation.responses import StarletteOpenAPIResponse
 
 
 class Application(Starlette):
@@ -55,10 +56,10 @@ class Application(Starlette):
                 response = await endpoint(request, **kwargs)
             else:
                 response = endpoint(request, **kwargs)
-            if not isinstance(response, Response):
+            if isinstance(response, dict):
                 response = JSONResponse(response)
 
-            # TODO: a list of endpoint names to specify which responses to skip
+            # TODO: pass a list of endpoint names to specify which responses to skip
             if self.validate_responses:
                 ResponseValidator(self.spec).validate(
                     validation_request, StarletteOpenAPIResponse(response)

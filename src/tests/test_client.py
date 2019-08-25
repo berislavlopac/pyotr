@@ -1,8 +1,9 @@
 import pytest
+from starlette.testclient import TestClient
+
 from pyotr.client import Client
 from pyotr.server import Application
 from pyotr.validation.responses.client import ClientOpenAPIResponse
-from starlette.testclient import TestClient
 
 
 def test_client_calls_endpoint(spec_dict, config):
