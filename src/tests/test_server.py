@@ -6,19 +6,17 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 
-def test_server_from_file_yaml(config):
-    app = Application.from_file(config.yaml_spec_file, config.endpoint_base)
-    assert app.spec.info.title == "Test Spec"
-
-
-def test_server_from_file_json(config):
-    app = Application.from_file(config.json_spec_file, config.endpoint_base)
+@pytest.mark.parametrize('filename', ('openapi.json', 'openapi.yaml'))
+def test_server_from_file(config, filename):
+    file_path = config.test_dir / filename
+    app = Application.from_file(file_path, config.endpoint_base)
     assert app.spec.info.title == "Test Spec"
 
 
 def test_server_from_file_raises_exception_if_unknown_type(config):
+    file_path = config.test_dir / 'openapi.unknown'
     with pytest.raises(RuntimeError):
-        Application.from_file(config.unknown_spec_file, config.endpoint_base)
+        Application.from_file(file_path, config.endpoint_base)
 
 
 def test_server_dotted_endpoint(spec_dict):
