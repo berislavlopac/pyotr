@@ -19,6 +19,8 @@ requests = "^2.22"
 pytest-cov = "^2.7"
 typing-extensions = "^3.7"
 uvicorn = {version = "^0.8.3", optional = true}
+mkdocs = "^1.0"
+httpx = "^0.7.2"
 
 [tool.poetry.extras]
 uvicorn = ["uvicorn"]

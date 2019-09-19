@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Optional, Type, Union
 
-import requests
+import httpx
 from openapi_core import create_spec
 from openapi_core.schema.specs.models import Spec
 from openapi_core.shortcuts import ResponseValidator
@@ -17,7 +17,7 @@ class Client:
 
     def __init__(self, spec: Union[Spec, dict], *,
                  server_url: Optional[str] = None,
-                 client: Requestable = requests,
+                 client: Requestable = httpx,
                  request_class: Type[ClientOpenAPIRequest] = ClientOpenAPIRequest,
                  response_class: Type[ClientOpenAPIResponse] = ClientOpenAPIResponse
                  ):
