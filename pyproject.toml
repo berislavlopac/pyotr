@@ -5,7 +5,7 @@ description = "Python OpenAPI-to-REST (and back) framework "
 authors = ["Berislav Lopac <berislav@lopac.net>"]
 license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/berislavlopac/pyotr"
+homepage = "https://pyotr.readthedocs.io"
 repository = "https://github.com/berislavlopac/pyotr"
 
 [tool.poetry.dependencies]
