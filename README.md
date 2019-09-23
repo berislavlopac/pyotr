@@ -27,9 +27,3 @@ Quick Start
     client = Client.from_file("path/to/openapi.yaml")
     result = client.some_endpoint_id("path", "variables", "query_var"="example")
     
-Why Pyotr?
-----------
-
-The main advantage of Pyotr -- both as a server and as a client -- is that it uses the OpenAPI specification to both prepare and validate requests and responses.
-
-In `pyotr.server`, the specification is used to route a request to the right endpoint, allowing the developer to simply implement the endpoint function. And for `pyotr.client`, the spec is used to construct the request, applying any arguments provided by the user, before sending it to the server.

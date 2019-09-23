@@ -1,1 +1,6 @@
-site_name: My Docs
+site_name: Pyotr Documentation
+theme: readthedocs
+nav:
+- 'index.md'
+- 'server.md'
+- 'client.md'
