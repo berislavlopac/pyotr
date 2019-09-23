@@ -11,12 +11,11 @@ The minimal setup consists of three files:
 
 The directory `src/examples/server/` contains a working example Pyotr server application, using the specification at `src/examples/petstore.yaml` -- which is a copy of the standard OpenAPI [example specification](https://editor.swagger.io/). 
 
-To run the example, follow these steps:
+To run the example, follow these steps inside a Python `virtualenv`:
 
-1. Create a Python `virtualenv` and `cd` into the `src/` directory.
-2. Install `poetry`: https://poetry.eustace.io/docs/#installation
-3. Update `pyotr` dependencies: `poetry update`
-4. Start the API server: `uvicorn examples.server.server:app --reload --host 0.0.0.0 --port 5000 --log-level debug`
+1. Install [`poetry`](https://poetry.eustace.io/docs/#installation)
+2. Update `pyotr` dependencies: `poetry update`
+3. Start the API server: `uvicorn examples.server.server:app --reload --host 0.0.0.0 --port 5000 --log-level debug`
 
 
 Application
