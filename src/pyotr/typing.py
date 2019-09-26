@@ -7,5 +7,5 @@ class Requestable(Protocol):  # pragma: no cover
     """ Any object (usually a module, class or instance) that implements the
         `request` method compatible with the `requests` library.
     """
-    def request(method: str, url: str, **kwargs) -> Any:
+    def request(self, method: str, url: str, **kwargs) -> Any:
         ...
