@@ -4,6 +4,7 @@ from typing import Optional, Type, Union
 import httpx
 from openapi_core import create_spec
 from openapi_core.schema.specs.models import Spec
+from openapi_core.schema.servers.models import Server
 from openapi_core.shortcuts import ResponseValidator
 from stringcase import snakecase
 
@@ -30,26 +31,24 @@ class Client:
 
         if server_url is None:
             server_url = self.spec.servers[0].url
-        server_url = server_url.rstrip('/')
-        if server_url not in self.spec.servers:
-            self.spec.servers.append(server_url)
+        else:
+            server_url = server_url.rstrip('/')
+            for server in self.spec.servers:
+                if server.url == server_url:
+                    server_url = server.url
+                    break
+            else:
+                self.spec.servers.append(Server(server_url))
         self.server_url = server_url
-
-        self.operations = {
-            snakecase(op_spec.operation_id): self._get_operation(op_spec)
-            for path_spec in spec.paths.values()
-            for op_spec in path_spec.operations.values()
-        }
         self.validator = ResponseValidator(self.spec)
 
-    def __getattr__(self, item):
-        try:
-            return self.operations[item]
-        except KeyError:
-            raise AttributeError(f'Incorrect operation: {item}')
+        for path_spec in spec.paths.values():
+            for op_spec in path_spec.operations.values():
+                setattr(self, snakecase(op_spec.operation_id), self._get_operation(op_spec).__get__(self))
 
-    def _get_operation(self, op_spec):
-        def operation(*args,
+    @staticmethod
+    def _get_operation(op_spec):
+        def operation(self, *args,
                       body_: Optional[Union[dict, list]] = None,
                       headers_: Optional[dict] = None,
                       **kwargs

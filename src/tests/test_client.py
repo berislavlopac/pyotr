@@ -25,10 +25,16 @@ def test_client_incorrect_args_raises_error(spec_dict, config):
 
 def test_unknown_server_url_gets_added_to_spec(spec_dict):
     client = Client(spec_dict, server_url='foo.bar')
-    assert 'foo.bar' in client.spec.servers
+    assert client.server_url == 'foo.bar'
+    assert client.spec.servers[-1].url == 'foo.bar'
 
 
-def test_incorrect_incorrect_endpoint_raises_error(spec_dict):
+def test_use_first_server_url_as_default(spec_dict):
+    client = Client(spec_dict)
+    assert client.server_url == 'https://localhost:8000'
+
+
+def test_incorrect_endpoint_raises_error(spec_dict):
     client = Client(spec_dict)
     with pytest.raises(AttributeError):
         client.foo_bar()
