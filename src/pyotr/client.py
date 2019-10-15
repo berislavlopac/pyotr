@@ -40,22 +40,15 @@ class Client:
             else:
                 self.spec.servers.append(Server(server_url))
         self.server_url = server_url
-
-        self.operations = {
-            snakecase(op_spec.operation_id): self._get_operation(op_spec)
-            for path_spec in spec.paths.values()
-            for op_spec in path_spec.operations.values()
-        }
         self.validator = ResponseValidator(self.spec)
 
-    def __getattr__(self, item):
-        try:
-            return self.operations[item]
-        except KeyError:
-            raise AttributeError(f'Incorrect operation: {item}')
+        for path_spec in spec.paths.values():
+            for op_spec in path_spec.operations.values():
+                setattr(self, snakecase(op_spec.operation_id), self._get_operation(op_spec).__get__(self))
 
-    def _get_operation(self, op_spec):
-        def operation(*args,
+    @staticmethod
+    def _get_operation(op_spec):
+        def operation(self, *args,
                       body_: Optional[Union[dict, list]] = None,
                       headers_: Optional[dict] = None,
                       **kwargs
