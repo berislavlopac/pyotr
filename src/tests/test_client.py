@@ -1,5 +1,6 @@
 import pytest
 from starlette.testclient import TestClient
+from starlette.responses import Response
 
 from pyotr.client import Client
 from pyotr.server import Application
@@ -13,6 +14,22 @@ def test_client_calls_endpoint(spec_dict, config):
     response = client.dummy_test_endpoint()
     assert isinstance(response, ClientOpenAPIResponse)
     assert response.payload == {'foo': 'bar'}
+
+
+def test_client_calls_endpoint_with_custom_headers(spec_dict, config, monkeypatch):
+    spec_path = config.test_dir / 'openapi.yaml'
+    app = Application.from_file(spec_path, config.endpoint_base)
+    client = Client(spec_dict, client=TestClient(app))
+
+    def patch_request(request):
+        def wrapper(*args, **kwargs):
+            client.request_info = {'args': args, 'kwargs': kwargs}
+            return request(*args, **kwargs)
+        return wrapper
+
+    monkeypatch.setattr(client.client, 'request', patch_request(client.client.request))
+    client.dummy_test_endpoint(headers_={'foo': 'bar'})
+    assert client.request_info['kwargs']['headers'] == {'foo': 'bar'}
 
 
 def test_client_incorrect_args_raises_error(spec_dict, config):

@@ -42,7 +42,11 @@ class ClientOpenAPIRequest(BaseOpenAPIRequest):
 
     @property
     def path(self):
-        return self.spec.path_name.format(**self.parameters['path'])
+        return self.path_pattern.format(**self.parameters['path'])
+
+    @property
+    def headers(self):
+        return self.parameters['header']
 
     def prepare(self, *args, **kwargs):
         len_vars = len(self.url_vars)

@@ -56,7 +56,7 @@ class Client:
             request = self.request_class(self.server_url, op_spec)
             request.prepare(*args, data_=body_, headers_=headers_, **kwargs)
             api_response = self.client.request(
-                method=request.method, url=request.url, data=request.body
+                method=request.method, url=request.url, data=request.body, headers=request.headers
             )
             api_response.raise_for_status()
             response = self.response_class(api_response)
