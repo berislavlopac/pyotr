@@ -47,3 +47,5 @@ __pycache__
 *.pyc
 dist/
 *.egg-info/
+
+poetry.lock
