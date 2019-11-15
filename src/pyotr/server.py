@@ -2,6 +2,7 @@ from functools import wraps
 from importlib import import_module
 from inspect import iscoroutinefunction
 from pathlib import Path
+from types import ModuleType
 from typing import Callable, Union
 
 from openapi_core import create_spec
@@ -19,7 +20,7 @@ from pyotr.validation.responses import StarletteOpenAPIResponse
 class Application(Starlette):
 
     def __init__(
-        self, spec: Union[Spec, dict], base: str, *, validate_responses: bool = True, **kwargs
+        self, spec: Union[Spec, dict], base: Union[str, ModuleType], *, validate_responses: bool = True, **kwargs
     ):
         super().__init__(**kwargs)
         if not isinstance(spec, Spec):
@@ -27,24 +28,24 @@ class Application(Starlette):
         self.spec = spec
         self.validate_responses = validate_responses
 
+        if isinstance(base, str):
+            base = _load_module(base)
+
         for path, path_spec in spec.paths.items():
             for method, operation in path_spec.operations.items():
                 endpoint = self._get_endpoint(operation.operation_id, base)
                 self.add_route(path, endpoint, [method])
 
-    def _get_endpoint(self, name: str, base: str, enforce_case: bool = True) -> Callable:
+    def _get_endpoint(self, name: str, module: ModuleType, enforce_case: bool = True) -> Callable:
         if '.' in name:
-            base, name = f"{base}.{name}".rsplit('.', 1)
+            base, name = name.rsplit('.', 1)
+            module = _load_module(f'{module.__name__}.{base}')
         if enforce_case:
             name = snakecase(name)
         try:
-            module = import_module(base)
-        except ModuleNotFoundError as e:
-            raise RuntimeError(f'The module {base} does not exist!') from e
-        try:
             endpoint = getattr(module, name)
         except AttributeError as e:
-            raise RuntimeError(f'The function {base}.{name} does not exist!') from e
+            raise RuntimeError(f'The function `{module}.{name}` does not exist!') from e
 
         @wraps(endpoint)
         async def wrapper(request, **kwargs) -> Response:
@@ -72,3 +73,12 @@ class Application(Starlette):
     def from_file(cls, path: Union[Path, str], *args, **kwargs) -> 'Application':
         spec = get_spec_from_file(path)
         return cls(spec, *args, **kwargs)
+
+
+def _load_module(name: str) -> ModuleType:
+    try:
+        module = import_module(name)
+    except ModuleNotFoundError as e:
+        raise RuntimeError(f'The module `{name}` does not exist!') from e
+    else:
+        return module
