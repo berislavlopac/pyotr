@@ -3,12 +3,12 @@ from typing import Optional, Type, Union
 
 import httpx
 from openapi_core import create_spec
-from openapi_core.schema.specs.models import Spec
 from openapi_core.schema.servers.models import Server
+from openapi_core.schema.specs.models import Spec
 from openapi_core.shortcuts import ResponseValidator
 from stringcase import snakecase
 
-from pyotr.typing import Requestable
+from pyotr.utils import Requestable
 from pyotr.utils import get_spec_from_file
 from pyotr.validation.requests import ClientOpenAPIRequest
 from pyotr.validation.responses import ClientOpenAPIResponse
@@ -34,8 +34,7 @@ class Client:
         else:
             server_url = server_url.rstrip('/')
             for server in self.spec.servers:
-                if server.url == server_url:
-                    server_url = server.url
+                if server_url == server.url:
                     break
             else:
                 self.spec.servers.append(Server(server_url))

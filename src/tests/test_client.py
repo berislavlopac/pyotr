@@ -1,6 +1,5 @@
 import pytest
 from starlette.testclient import TestClient
-from starlette.responses import Response
 
 from pyotr.client import Client
 from pyotr.server import Application

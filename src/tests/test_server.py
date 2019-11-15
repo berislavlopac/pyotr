@@ -19,10 +19,30 @@ def test_server_from_file_raises_exception_if_unknown_type(config):
         Application.from_file(file_path, config.endpoint_base)
 
 
-def test_server_dotted_endpoint(spec_dict):
+def test_server_dotted_endpoint_name(spec_dict):
     spec_dict['paths']['/test']['get']['operationId'] = 'endpoints.dummyTestEndpoint'
     spec_dict['paths']['/test-async']['get']['operationId'] = 'endpoints.dummyTestEndpointCoro'
     app = Application(spec_dict, 'tests')
+    route = app.routes[0]
+    assert callable(route.endpoint)
+    assert route.endpoint.__name__ == 'dummy_test_endpoint'
+    assert route.path == '/test'
+
+
+def test_server_endpoints_as_module(spec_dict):
+    from tests import endpoints
+    app = Application(spec_dict, endpoints)
+    route = app.routes[0]
+    assert callable(route.endpoint)
+    assert route.endpoint.__name__ == 'dummy_test_endpoint'
+    assert route.path == '/test'
+
+
+def test_server_endpoints_as_module_dotted_endpoint_name(spec_dict):
+    import tests
+    spec_dict['paths']['/test']['get']['operationId'] = 'endpoints.dummyTestEndpoint'
+    spec_dict['paths']['/test-async']['get']['operationId'] = 'endpoints.dummyTestEndpointCoro'
+    app = Application(spec_dict, tests)
     route = app.routes[0]
     assert callable(route.endpoint)
     assert route.endpoint.__name__ == 'dummy_test_endpoint'
