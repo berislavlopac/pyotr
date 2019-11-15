@@ -37,7 +37,10 @@ The value of `spec` is either a Python dictionary of the OpenAPI spec, or an `op
 
     app = Application.from_file(path='path/to/spec.yaml', base='path.to.endpoints')
 
-The value of `base` is a dot-separated location of the Python module or package which contains the endpoint definitions; in the above example, it might be the file `path/to/endpoints.py` or the directory `path/to/endpoints/`. 
+The value of `base` is the Python module or package which contains the endpoint definitions. It can be specified as the dot-separated path to the module location; in the above example, it might be the file `path/to/endpoints.py` or the directory `path/to/endpoints/`. Alternatively, `base` can be the actual imported module:
+
+    from path.to import endpoints
+    app = Application.from_file(path='path/to/spec.yaml', base=endpoints)
 
 
 Endpoints
@@ -49,7 +52,7 @@ When the app is started, it will look at all the `operationId` values in the spe
 
 An endpoint is a standard Python function, with the following requirements:
 
-1. It doesn't have to be a coroutine function (defined using `async def` syntax), but it is highly recommended, especially if it needs to perform any asynchronous operations itself.
+1. It doesn't have to be a coroutine function (defined using `async def` syntax), but it is highly recommended, especially if it needs to perform any asynchronous operations itself (e.g. if it makes a call to an external API).
 2. It needs to accept a single positional argument, a request object compatible with the Starlette [`Request`](https://www.starlette.io/requests/).
 3. It has to return either a Python dictionary, or an object compatible with the Starlette [`Response`](https://www.starlette.io/responses/). If it is a dictionary, Pyotr will convert it into a Starlette `JSONResponse`.
 
