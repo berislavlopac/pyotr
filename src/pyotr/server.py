@@ -4,6 +4,7 @@ from inspect import iscoroutinefunction
 from pathlib import Path
 from types import ModuleType
 from typing import Callable, Union
+from urllib.parse import urlsplit
 
 from openapi_core import create_spec
 from openapi_core.schema.specs.models import Spec
@@ -20,13 +21,19 @@ from pyotr.validation.responses import StarletteOpenAPIResponse
 class Application(Starlette):
 
     def __init__(
-        self, spec: Union[Spec, dict], base: Union[str, ModuleType], *, validate_responses: bool = True, **kwargs
+        self, spec: Union[Spec, dict], base: Union[str, ModuleType], *,
+        validate_responses: bool = True, ignore_server_paths: bool = False, **kwargs
     ):
         super().__init__(**kwargs)
         if not isinstance(spec, Spec):
             spec = create_spec(spec)
         self.spec = spec
         self.validate_responses = validate_responses
+        server_paths = {''}
+        if not ignore_server_paths:
+            server_paths = {
+                urlsplit(server.url).path for server in self.spec.servers
+            }
 
         if isinstance(base, str):
             base = _load_module(base)
@@ -34,7 +41,8 @@ class Application(Starlette):
         for path, path_spec in spec.paths.items():
             for method, operation in path_spec.operations.items():
                 endpoint = self._get_endpoint(operation.operation_id, base)
-                self.add_route(path, endpoint, [method])
+                for server_path in server_paths:
+                    self.add_route(server_path + path, endpoint, [method])
 
     def _get_endpoint(self, name: str, module: ModuleType, enforce_case: bool = True) -> Callable:
         if '.' in name:

@@ -3,9 +3,6 @@ from pathlib import Path
 
 import pytest
 
-TEST_DIR = Path(__file__).parent
-JSON_SPEC_FILE = TEST_DIR / 'openapi.json'
-
 
 @pytest.fixture
 def spec_dict(config):

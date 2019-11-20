@@ -14,7 +14,7 @@ class ClientOpenAPIRequest(BaseOpenAPIRequest):
         self.host_url = host_url
         self._url_parts = urlsplit(self.host_url)
 
-        self.path_pattern = op_spec.path_name
+        self.path_pattern = self._url_parts.path + op_spec.path_name
 
         self.parameters = {
             'path': {},
@@ -36,7 +36,7 @@ class ClientOpenAPIRequest(BaseOpenAPIRequest):
     @property
     def url(self):
         url_parts = self._url_parts._asdict()
-        url_parts['path'] += self.path
+        url_parts['path'] = self.path
         url_parts['query'] = urlencode(self.parameters['query'])
         return urlunsplit(url_parts.values())
 

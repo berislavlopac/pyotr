@@ -1,9 +1,10 @@
 from inspect import iscoroutinefunction
 
 import pytest
-from pyotr.server import Application
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+
+from pyotr.server import Application
 
 
 @pytest.mark.parametrize('filename', ('openapi.json', 'openapi.yaml'))
@@ -21,6 +22,7 @@ def test_server_from_file_raises_exception_if_unknown_type(config):
 
 def test_server_dotted_endpoint_name(spec_dict):
     spec_dict['paths']['/test']['get']['operationId'] = 'endpoints.dummyTestEndpoint'
+    spec_dict['paths']['/test/{test_arg}']['get']['operationId'] = 'endpoints.dummyTestEndpointWithArgument'
     spec_dict['paths']['/test-async']['get']['operationId'] = 'endpoints.dummyTestEndpointCoro'
     app = Application(spec_dict, 'tests')
     route = app.routes[0]
@@ -41,12 +43,28 @@ def test_server_endpoints_as_module(spec_dict):
 def test_server_endpoints_as_module_dotted_endpoint_name(spec_dict):
     import tests
     spec_dict['paths']['/test']['get']['operationId'] = 'endpoints.dummyTestEndpoint'
+    spec_dict['paths']['/test/{test_arg}']['get']['operationId'] = 'endpoints.dummyTestEndpointWithArgument'
     spec_dict['paths']['/test-async']['get']['operationId'] = 'endpoints.dummyTestEndpointCoro'
     app = Application(spec_dict, tests)
     route = app.routes[0]
     assert callable(route.endpoint)
     assert route.endpoint.__name__ == 'dummy_test_endpoint'
     assert route.path == '/test'
+
+
+def test_server_with_path(spec_dict):
+    from tests import endpoints
+    spec_dict['servers'].insert(0, {'url': 'http://localhost:8001/with/path'})
+    app = Application(spec_dict, endpoints)
+    expected_routes = {
+        '/test',
+        '/test/{test_arg}',
+        '/with/path/test',
+        '/test-async',
+        '/with/path/test/{test_arg}',
+        '/with/path/test-async',
+    }
+    assert {route.path for route in app.routes} == expected_routes
 
 
 def test_server_no_endpoint_module(spec_dict):
@@ -78,13 +96,37 @@ async def test_server_wraps_endpoint_function_result_with_jsonresponse(spec_dict
 
     app = Application(spec_dict, config.endpoint_base)
     for route in app.routes:
-        request = Request({
-            'type': 'http',
-            'path': app.spec.servers[0].url + route.path,
-            'query_string': '',
-            'headers': {},
-            'app': app,
-            'method': 'get',
-        }, dummy_receive)
-        response = await route.endpoint(request)
-        assert isinstance(response, JSONResponse)
+        if route.path == '/test':
+            break
+    request = Request({
+        'type': 'http',
+        'path': app.spec.servers[0].url + route.path,
+        'query_string': '',
+        'headers': {},
+        'app': app,
+        'method': 'get',
+    }, dummy_receive)
+    response = await route.endpoint(request)
+    assert isinstance(response, JSONResponse)
+
+
+@pytest.mark.asyncio
+async def test_server_wraps_async_endpoint_function_result_with_jsonresponse(spec_dict, config):
+
+    async def dummy_receive():
+        return {'type': 'http.request'}
+
+    app = Application(spec_dict, config.endpoint_base)
+    for route in app.routes:
+        if route.path == '/test-async':
+            break
+    request = Request({
+        'type': 'http',
+        'path': app.spec.servers[0].url + route.path,
+        'query_string': '',
+        'headers': {},
+        'app': app,
+        'method': 'get',
+    }, dummy_receive)
+    response = await route.endpoint(request)
+    assert isinstance(response, JSONResponse)

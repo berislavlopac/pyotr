@@ -7,8 +7,16 @@ from pyotr.validation.responses.client import ClientOpenAPIResponse
 
 
 def test_client_calls_endpoint(spec_dict, config):
-    spec_path = config.test_dir / 'openapi.yaml'
-    app = Application.from_file(spec_path, config.endpoint_base)
+    app = Application(spec_dict, config.endpoint_base)
+    client = Client(spec_dict, client=TestClient(app))
+    response = client.dummy_test_endpoint()
+    assert isinstance(response, ClientOpenAPIResponse)
+    assert response.payload == {'foo': 'bar'}
+
+
+def test_client_calls_endpoint_using_server_with_path(spec_dict, config):
+    spec_dict['servers'].insert(0, {'url': 'http://localhost:8001/with/path'})
+    app = Application(spec_dict, config.endpoint_base)
     client = Client(spec_dict, client=TestClient(app))
     response = client.dummy_test_endpoint()
     assert isinstance(response, ClientOpenAPIResponse)
@@ -16,8 +24,7 @@ def test_client_calls_endpoint(spec_dict, config):
 
 
 def test_client_calls_endpoint_with_custom_headers(spec_dict, config, monkeypatch):
-    spec_path = config.test_dir / 'openapi.yaml'
-    app = Application.from_file(spec_path, config.endpoint_base)
+    app = Application(spec_dict, config.endpoint_base)
     client = Client(spec_dict, client=TestClient(app))
 
     def patch_request(request):
@@ -32,14 +39,30 @@ def test_client_calls_endpoint_with_custom_headers(spec_dict, config, monkeypatc
 
 
 def test_client_incorrect_args_raises_error(spec_dict, config):
-    spec_path = config.test_dir / 'openapi.yaml'
-    app = Application.from_file(spec_path, config.endpoint_base)
+    app = Application(spec_dict, config.endpoint_base)
     client = Client(spec_dict, client=TestClient(app))
-    with pytest.raises(RuntimeError):
+    with pytest.raises(RuntimeError) as error:
         client.dummy_test_endpoint('foo')
+    assert error.exconly() == 'RuntimeError: Incorrect arguments: dummyTestEndpoint accepts no positional arguments'
+
+
+def test_client_too_few_args_raises_error(spec_dict, config):
+    app = Application(spec_dict, config.endpoint_base)
+    client = Client(spec_dict, client=TestClient(app))
+    with pytest.raises(RuntimeError) as error:
+        client.dummy_test_endpoint_with_argument()
+    assert error.exconly() == (
+        'RuntimeError: Incorrect arguments: dummyTestEndpointWithArgument accepts 1 positional argument: test_arg'
+    )
 
 
 def test_unknown_server_url_gets_added_to_spec(spec_dict):
+    test_server = spec_dict['servers'][1]['url']
+    client = Client(spec_dict, server_url=test_server)
+    assert client.server_url == test_server
+
+
+def test_known_server_url_gets_selected(spec_dict):
     client = Client(spec_dict, server_url='foo.bar')
     assert client.server_url == 'foo.bar'
     assert client.spec.servers[-1].url == 'foo.bar'
@@ -47,7 +70,7 @@ def test_unknown_server_url_gets_added_to_spec(spec_dict):
 
 def test_use_first_server_url_as_default(spec_dict):
     client = Client(spec_dict)
-    assert client.server_url == 'https://localhost:8000'
+    assert client.server_url == spec_dict['servers'][0]['url']
 
 
 def test_incorrect_endpoint_raises_error(spec_dict):

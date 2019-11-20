@@ -16,6 +16,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Thing'
+  /test/{test_arg}:
+    get:
+      operationId: dummyTestEndpointWithArgument
+      parameters:
+        - name: test_arg
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Thing'
   /test-async:
     get:
       operationId: dummyTestEndpointCoro

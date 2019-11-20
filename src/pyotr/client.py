@@ -47,6 +47,7 @@ class Client:
 
     @staticmethod
     def _get_operation(op_spec):
+        # TODO: extract args and kwargs from operation parameters
         def operation(self, *args,
                       body_: Optional[Union[dict, list]] = None,
                       headers_: Optional[dict] = None,
