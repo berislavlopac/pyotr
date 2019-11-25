@@ -5,7 +5,7 @@
 The project consists of two separate libraries that can be used independently:
 
 * `pyotr.server` is a [Starlette](https://www.starlette.io)-based framework for serving OpenAPI-based services. It is functionally very similar to [connexion](https://connexion.readthedocs.io), except that it aims to be fully [ASGI](https://asgi.readthedocs.io)-compliant. 
-* `pyotr.client` is a simple HTTP client for consuming OpenAPI-based services. It is a spiritual descendent of the
+* `pyotr.client` is a HTTP client for consuming OpenAPI-based services. It is a spiritual descendent of the
  [Bravado](https://github.com/Yelp/bravado) library, which currently supports only Swagger 2.0.
 
 **WARNING:** This is still very much work in progress and not nearly ready for any kind of production.
@@ -21,5 +21,5 @@ Specifically, when `pyotr.server` receives a request it validates it against the
   also validated based on the specification rules before being sent back to the client.
   
 On the other hand, `pyotr.client` uses the `operationId` to generate a request based on the rules defined in the
- specification. The user simply needs to call the `operationId` as if it was a method of a client instance
+ specification. The user needs to call the `operationId` as if it was a method of a client instance
  , optionally passing any specified arguments. 

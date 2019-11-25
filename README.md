@@ -8,7 +8,7 @@ Pyotr
 The project consists of two separate libraries that can be used independently:
 
 * `pyotr.server` is a [Starlette](https://www.starlette.io)-based framework for serving OpenAPI-based services. It is functionally very similar to [connexion](https://connexion.readthedocs.io), except that it aims to be fully [ASGI](https://asgi.readthedocs.io)-compliant. 
-* `pyotr.client` is a simple HTTP client for consuming OpenAPI-based services.
+* `pyotr.client` is a HTTP client for consuming OpenAPI-based services.
 
 **WARNING:** This is still very much work in progress and not nearly ready for any kind of production.
 

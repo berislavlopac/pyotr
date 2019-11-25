@@ -10,7 +10,7 @@ Pyotr client is a class that takes a dictionary or a `Spec` object; there is als
     from pyotr.client import Client
     client = Client.from_file("path/to/openapi.yaml")
     
-On instantiation, the client adds a number of methods to itself, each using a snake-case version of an `operationId` as a name. To make a request to the API, simply make call the corresponding method; e.g. if the spec contains an `operationId` named `someEndpointId`, it can be called as:
+On instantiation, the client adds a number of methods to itself, each using a snake-case version of an `operationId` as a name. To make a request to the API, call the corresponding method; e.g. if the spec contains an `operationId` named `someEndpointId`, it can be called as:
  
     result = client.some_endpoint_id("foo", "bar", query_var="example")
 
