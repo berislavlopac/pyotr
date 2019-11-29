@@ -2,7 +2,7 @@ from pathlib import Path
 
 from pyotr.client import Client
 
-SPEC_PATH = Path(__file__).parent / 'petstore.yaml'
+SPEC_PATH = Path(__file__).parent / "petstore.yaml"
 
 client = Client.from_yaml(SPEC_PATH)
 

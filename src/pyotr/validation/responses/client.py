@@ -2,7 +2,6 @@ from openapi_core.wrappers.base import BaseOpenAPIResponse
 
 
 class ClientOpenAPIResponse(BaseOpenAPIResponse):
-
     def __init__(self, response):
         self.response = response
 
@@ -20,7 +19,7 @@ class ClientOpenAPIResponse(BaseOpenAPIResponse):
 
     @property
     def mimetype(self):
-        return self.response.headers.get('content-type')
+        return self.response.headers.get("content-type")
 
     @property
     def payload(self):

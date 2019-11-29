@@ -19,21 +19,23 @@ from pyotr.validation.responses import StarletteOpenAPIResponse
 
 
 class Application(Starlette):
-
     def __init__(
-        self, spec: Union[Spec, dict], base: Union[str, ModuleType], *,
-        validate_responses: bool = True, ignore_server_paths: bool = False, **kwargs
+        self,
+        spec: Union[Spec, dict],
+        base: Union[str, ModuleType],
+        *,
+        validate_responses: bool = True,
+        ignore_server_paths: bool = False,
+        **kwargs,
     ):
         super().__init__(**kwargs)
         if not isinstance(spec, Spec):
             spec = create_spec(spec)
         self.spec = spec
         self.validate_responses = validate_responses
-        server_paths = {''}
+        server_paths = {""}
         if not ignore_server_paths:
-            server_paths = {
-                urlsplit(server.url).path for server in self.spec.servers
-            }
+            server_paths = {urlsplit(server.url).path for server in self.spec.servers}
 
         if isinstance(base, str):
             base = _load_module(base)
@@ -45,15 +47,15 @@ class Application(Starlette):
                     self.add_route(server_path + path, endpoint, [method])
 
     def _get_endpoint(self, name: str, module: ModuleType, enforce_case: bool = True) -> Callable:
-        if '.' in name:
-            base, name = name.rsplit('.', 1)
-            module = _load_module(f'{module.__name__}.{base}')
+        if "." in name:
+            base, name = name.rsplit(".", 1)
+            module = _load_module(f"{module.__name__}.{base}")
         if enforce_case:
             name = snakecase(name)
         try:
             endpoint = getattr(module, name)
         except AttributeError as e:
-            raise RuntimeError(f'The function `{module}.{name}` does not exist!') from e
+            raise RuntimeError(f"The function `{module}.{name}` does not exist!") from e
 
         @wraps(endpoint)
         async def wrapper(request, **kwargs) -> Response:
@@ -78,7 +80,7 @@ class Application(Starlette):
         return wrapper
 
     @classmethod
-    def from_file(cls, path: Union[Path, str], *args, **kwargs) -> 'Application':
+    def from_file(cls, path: Union[Path, str], *args, **kwargs) -> "Application":
         spec = get_spec_from_file(path)
         return cls(spec, *args, **kwargs)
 
@@ -87,6 +89,6 @@ def _load_module(name: str) -> ModuleType:
     try:
         module = import_module(name)
     except ModuleNotFoundError as e:
-        raise RuntimeError(f'The module `{name}` does not exist!') from e
+        raise RuntimeError(f"The module `{name}` does not exist!") from e
     else:
         return module

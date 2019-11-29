@@ -6,7 +6,7 @@ import pytest
 
 @pytest.fixture
 def spec_dict(config):
-    file_path = config.test_dir / 'openapi.json'
+    file_path = config.test_dir / "openapi.json"
     with open(file_path) as spec_file:
         return json.load(spec_file)
 
@@ -14,7 +14,7 @@ def spec_dict(config):
 class Config:
     def __init__(self):
         self.test_dir = Path(__file__).parent
-        self.endpoint_base = 'tests.endpoints'
+        self.endpoint_base = "tests.endpoints"
 
 
 @pytest.fixture

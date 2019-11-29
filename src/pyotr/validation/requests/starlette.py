@@ -4,10 +4,9 @@ from starlette.routing import Match
 
 
 class StarletteOpenAPIRequest(BaseOpenAPIRequest):
-
     def __init__(self, request: Request):
         self.request = request
-        self.body = b''
+        self.body = b""
 
     @classmethod
     async def prepare(cls, request):
@@ -24,7 +23,7 @@ class StarletteOpenAPIRequest(BaseOpenAPIRequest):
 
     @property
     def path(self):
-        return self.request['path']
+        return self.request["path"]
 
     @property
     def method(self):
@@ -41,12 +40,12 @@ class StarletteOpenAPIRequest(BaseOpenAPIRequest):
     @property
     def parameters(self):
         return {
-            'path': self.request.path_params,
-            'query': self.request.query_params,
-            'header': self.request.headers,
-            'cookie': self.request.cookies,
+            "path": self.request.path_params,
+            "query": self.request.query_params,
+            "header": self.request.headers,
+            "cookie": self.request.cookies,
         }
 
     @property
     def mimetype(self):
-        return self.request.headers['content-type']
+        return self.request.headers["content-type"]

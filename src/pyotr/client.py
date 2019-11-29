@@ -15,13 +15,15 @@ from pyotr.validation.responses import ClientOpenAPIResponse
 
 
 class Client:
-
-    def __init__(self, spec: Union[Spec, dict], *,
-                 server_url: Optional[str] = None,
-                 client: Requestable = httpx,
-                 request_class: Type[ClientOpenAPIRequest] = ClientOpenAPIRequest,
-                 response_class: Type[ClientOpenAPIResponse] = ClientOpenAPIResponse
-                 ):
+    def __init__(
+        self,
+        spec: Union[Spec, dict],
+        *,
+        server_url: Optional[str] = None,
+        client: Requestable = httpx,
+        request_class: Type[ClientOpenAPIRequest] = ClientOpenAPIRequest,
+        response_class: Type[ClientOpenAPIResponse] = ClientOpenAPIResponse
+    ):
         if not isinstance(spec, Spec):
             spec = create_spec(spec)
         self.spec = spec
@@ -32,7 +34,7 @@ class Client:
         if server_url is None:
             server_url = self.spec.servers[0].url
         else:
-            server_url = server_url.rstrip('/')
+            server_url = server_url.rstrip("/")
             for server in self.spec.servers:
                 if server_url == server.url:
                     break
@@ -48,11 +50,9 @@ class Client:
     @staticmethod
     def _get_operation(op_spec):
         # TODO: extract args and kwargs from operation parameters
-        def operation(self, *args,
-                      body_: Optional[Union[dict, list]] = None,
-                      headers_: Optional[dict] = None,
-                      **kwargs
-                      ):
+        def operation(
+            self, *args, body_: Optional[Union[dict, list]] = None, headers_: Optional[dict] = None, **kwargs
+        ):
             request = self.request_class(self.server_url, op_spec)
             request.prepare(*args, data_=body_, headers_=headers_, **kwargs)
             api_response = self.client.request(
@@ -62,6 +62,7 @@ class Client:
             response = self.response_class(api_response)
             self.validator.validate(request, response).raise_for_errors()
             return response
+
         return operation
 
     @classmethod
