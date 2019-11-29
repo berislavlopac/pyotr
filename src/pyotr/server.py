@@ -23,7 +23,7 @@ class Application(Starlette):
         self,
         spec: Union[Spec, dict],
         *,
-        base: Optional[Union[str, ModuleType]] = None,
+        endpoints: Optional[Union[str, ModuleType]] = None,
         validate_responses: bool = True,
         ignore_server_paths: bool = False,
         **kwargs,
@@ -37,14 +37,14 @@ class Application(Starlette):
         if not ignore_server_paths:
             server_paths = {urlsplit(server.url).path for server in self.spec.servers}
 
-        if base is not None:
+        if endpoints is not None:
 
-            if isinstance(base, str):
-                base = _load_module(base)
+            if isinstance(endpoints, str):
+                endpoints = _load_module(endpoints)
 
             for path, path_spec in spec.paths.items():
                 for method, operation in path_spec.operations.items():
-                    endpoint = self._get_endpoint(operation.operation_id, base)
+                    endpoint = self._get_endpoint(operation.operation_id, endpoints)
                     for server_path in server_paths:
                         self.add_route(server_path + path, endpoint, [method])
 
@@ -72,7 +72,7 @@ class Application(Starlette):
             if isinstance(response, dict):
                 response = JSONResponse(response)
 
-            # TODO: pass a list of endpoint names to specify which responses to skip
+            # TODO: pass a list of operation IDs to specify which responses not to validate
             if self.validate_responses:
                 ResponseValidator(self.spec).validate(
                     validation_request, StarletteOpenAPIResponse(response)
