@@ -7,7 +7,7 @@ from pyotr.validation.responses.client import ClientOpenAPIResponse
 
 
 def test_client_calls_endpoint(spec_dict, config):
-    app = Application(spec_dict, config.endpoint_base)
+    app = Application(spec_dict, base=config.endpoint_base)
     client = Client(spec_dict, client=TestClient(app))
     response = client.dummy_test_endpoint()
     assert isinstance(response, ClientOpenAPIResponse)
@@ -16,7 +16,7 @@ def test_client_calls_endpoint(spec_dict, config):
 
 def test_client_calls_endpoint_using_server_with_path(spec_dict, config):
     spec_dict["servers"].insert(0, {"url": "http://localhost:8001/with/path"})
-    app = Application(spec_dict, config.endpoint_base)
+    app = Application(spec_dict, base=config.endpoint_base)
     client = Client(spec_dict, client=TestClient(app))
     response = client.dummy_test_endpoint()
     assert isinstance(response, ClientOpenAPIResponse)
@@ -24,7 +24,7 @@ def test_client_calls_endpoint_using_server_with_path(spec_dict, config):
 
 
 def test_client_calls_endpoint_with_custom_headers(spec_dict, config, monkeypatch):
-    app = Application(spec_dict, config.endpoint_base)
+    app = Application(spec_dict, base=config.endpoint_base)
     client = Client(spec_dict, client=TestClient(app))
 
     def patch_request(request):
@@ -40,7 +40,7 @@ def test_client_calls_endpoint_with_custom_headers(spec_dict, config, monkeypatc
 
 
 def test_client_incorrect_args_raises_error(spec_dict, config):
-    app = Application(spec_dict, config.endpoint_base)
+    app = Application(spec_dict, base=config.endpoint_base)
     client = Client(spec_dict, client=TestClient(app))
     with pytest.raises(RuntimeError) as error:
         client.dummy_test_endpoint("foo")
@@ -48,7 +48,7 @@ def test_client_incorrect_args_raises_error(spec_dict, config):
 
 
 def test_client_too_few_args_raises_error(spec_dict, config):
-    app = Application(spec_dict, config.endpoint_base)
+    app = Application(spec_dict, base=config.endpoint_base)
     client = Client(spec_dict, client=TestClient(app))
     with pytest.raises(RuntimeError) as error:
         client.dummy_test_endpoint_with_argument()
