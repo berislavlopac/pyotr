@@ -29,7 +29,6 @@ class Application(Starlette):
         module: Optional[Union[str, ModuleType]] = None,
         validate_responses: bool = True,
         enforce_case: bool = True,
-        ignore_server_paths: bool = False,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -38,9 +37,7 @@ class Application(Starlette):
         self.spec = spec
         self.validate_responses = validate_responses
         self.enforce_case = enforce_case
-        self._server_paths = {""}
-        if not ignore_server_paths:
-            self._server_paths = {urlsplit(server.url).path for server in self.spec.servers}
+        self._server_paths = {urlsplit(server.url).path for server in self.spec.servers}
 
         self._operations = {
             oper.operation_id: Operation(path, method)
