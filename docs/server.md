@@ -1,15 +1,19 @@
-# Pyotr Server
+Pyotr Server
+============
+
 
 Example Setup
 -------------
 
 The minimal setup consists of three files:
 
-* a REST(ful) API specification in the form of an OpenAPI file, usually in YAML or JSON format
+* a REST(ful) API specification in the form of an OpenAPI file, usually in YAML or JSON format 
 * a Python file, e.g. `server.py`, which initiates your application
 * another Python file containing the individual endpoint functions
 
-The directory `src/examples/server/` contains a working example Pyotr server application, using the specification at `src/examples/petstore.yaml` -- which is a copy of the standard OpenAPI [example specification](https://editor.swagger.io/). 
+The directory `src/examples/server/` contains a working example Pyotr server application, using the specification at
+ `src/examples/petstore.yaml` -- which is a copy of the standard OpenAPI
+ [example specification](https://editor.swagger.io/). 
 
 To run the example, follow these steps inside a Python `virtualenv`:
 
@@ -21,40 +25,53 @@ To run the example, follow these steps inside a Python `virtualenv`:
 Application
 -----------
 
-A Pyotr application is an instance of the `pyotr.server.Application` class, which is a subclass of `starlette.applications.Starlette`; this means it is fully ASGI-compatible and can be used as any other ASGI app.
+A Pyotr application is an instance of the `pyotr.server.Application` class, which is a subclass of
+`starlette.applications.Starlette`; this means it is fully ASGI-compatible and can be used as any other ASGI app.
 
-When initialising a Pyotr server app, it is necessary to provide:
-
-1. An OpenAPI specification.
-2. Python module containing the endpoint functions.
+When initialising a Pyotr server app, it is necessary to provide an OpenAPI specification file.
 
 For example:
 
     from pyotr.server import Application
-    app = Application(spec=api_spec, base='path.to.endpoints')
+    app = Application(spec=api_spec)
     
-The value of `spec` is either a Python dictionary of the OpenAPI spec, or an `openapi-core` `Spec` object. There is a helper class method which will load the spec provided a path to the specification file:
+The value of `spec` is either a Python dictionary of the OpenAPI spec, or an `openapi-core` `Spec` object. There
+is a helper class method which will load the spec provided a path in a specification file:
 
-    app = Application.from_file(path='path/to/spec.yaml', base='path.to.endpoints')
+    app = Application.from_file('path/to/spec.yaml')
 
-The value of `base` is the Python module or package which contains the endpoint definitions. It can be specified as the dot-separated path to the module location; in the above example, it might be the file `path/to/endpoints.py` or the directory `path/to/endpoints/`. Alternatively, `base` can be the actual imported module:
+Optionally, a module containing endpoint functions (see below) can be added as a keyword argument. It can be specified
+as the dot-separated path to the module location; in the above example, it might be the file `path/to/endpoints.py`
+or the directory `path/to/endpoints/`. Alternatively, `module` can be the actual imported module:
 
     from path.to import endpoints
-    app = Application.from_file(path='path/to/spec.yaml', base=endpoints)
+    app = Application(api_spec, module=endpoints)
+    
+The `Application` constructor also accepts the following keyword arguments:
+
+* `validate_responses`: Boolean (defaults to `True`) If `True`, each response will be validated agains the spec
+  before being sent back to the caller.
+* `enforce_case`: Boolean (defaults to `True`). If `true`, the `operationId` values will be normalized to snake case
+  when setting endpoint functions. For example, `operationId` `fooBar` will expect the function named `foo_bar`.
+    
+Any other keyword arguments provided to the `Application` constructor will be passed directly into the `Starlette`
+application class.
 
 
 Endpoints
 ---------
 
-The OpenAPI spec defines the endpoints ("paths") that the API handles, as well as the requests and responses it can recognise. Each endpoint has a [field](https://swagger.io/specification/#operation-object) called `operationId`, which is supposed to be globally unique; Pyotr takes advantage of this field to find the corresponding endpoint function.
+### Endpoint Functions
 
-When the app is started, it will look at all the `operationId` values in the spec and add a route for each of them. To locate the right endpoint functions, it imports the endpoint module combining the `base` argument and the `operationId` value, converting the function name to snake case if necessary. E.g. if the base is `path.to.endpoints` and the `operationId` is `fooBar`, it will import the `foo_bar` function located in either `path/to/endpoints.py` (or `path/to/endpoints/__init__.py`). Also, if the `operationId` value contains dots it will try to build the full path, so `some.extra.levels.fooBar` will look for the module `path/to/endpoints/some/extra/levels.py`.
+An endpoint is a standard Python function, which needs to conform to the following requirements:
 
-An endpoint is a standard Python function, with the following requirements:
-
-1. It doesn't have to be a coroutine function (defined using `async def` syntax), but it is highly recommended, especially if it needs to perform any asynchronous operations itself (e.g. if it makes a call to an external API).
-2. It needs to accept a single positional argument, a request object compatible with the Starlette [`Request`](https://www.starlette.io/requests/).
-3. It has to return either a Python dictionary, or an object compatible with the Starlette [`Response`](https://www.starlette.io/responses/). If it is a dictionary, Pyotr will convert it into a Starlette `JSONResponse`.
+1. It needs to accept a single positional argument, a request object compatible with the Starlette 
+   [`Request`](https://www.starlette.io/requests/).
+2. It has to return either a Python dictionary, or an object compatible with the Starlette 
+   [`Response`](https://www.starlette.io/responses/). If it is a dictionary, Pyotr will convert it into a 
+   `JSONResponse`.
+3. It doesn't have to be a coroutine function (defined using `async def` syntax), but it is highly recommended, 
+   especially if it needs to perform any asynchronous operations itself (e.g. if it makes a call to an external API).
 
 A basic example of an endpoint function:
 
@@ -64,3 +81,47 @@ A basic example of an endpoint function:
             "species": "cat"
             "name": "Lady Athena",
         }
+
+### Setting Endpoints on Application
+
+The OpenAPI spec defines the endpoints ("paths") that the API handles, as well as the requests and responses it can
+recognise. Each endpoint has a [field](https://swagger.io/specification/#operation-object) called `operationId`,
+which is supposed to be globally unique; Pyotr takes advantage of this field to find the corresponding endpoint
+function.
+
+If a module is passed to the `Application`, the app will at runtime look at all the `operationId` values in the spec
+and try to find the one which  a route for each of them.
+
+If the module is in the form of a dot-separated path, `pyotr` will locate the endpoint module by combining the `base` 
+argument and the `operationId` value, converting the function name to snake case if necessary. E.g. if the base is 
+`path.to.endpoints` and the `operationId` is `fooBar`, it will import the `foo_bar` function located in either 
+`path/to/endpoints.py` (or `path/to/endpoints/__init__.py`). Also, if the `operationId` value contains dots it will 
+try to build the full path, so `some.extra.levels.fooBar` will look for the module 
+`path/to/endpoints/some/extra/levels.py`.
+
+Alternatively, endpoints can be set manually, using the `set_endpoint` method:
+
+    from pyotr.server import Application
+    from path.to.endpoints import some_endpoint
+
+    app = Application(spec=api_spec)
+    
+    app.set_endpoint(some_endpoint)
+    
+Pyotr uses the function name to determine the operation. In the example above it would be set on the `operationId` 
+named `someEndpoint`. Alternatively, the `operationId` can be provided explicitly:
+    
+    app.set_endpoint(some_endpoint, operation_id=`someOtherOperationId`)
+
+It is also possible to define endpoints as they are defines, using the `endpoint` decorator, which works analogous 
+to the `set_endpoint` method:
+
+    app = Application(spec=api_spec)
+    
+    @app.endpoint
+    def some_endpoint(request):
+        ...
+        
+    @app.endpoint(operation_id=`someOtherOperationId`):
+    def another_endpoint(request):
+        ...

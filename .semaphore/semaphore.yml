@@ -1,0 +1,21 @@
+version: v1.0
+name: Python
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+blocks:
+  - name: Test
+    task:
+      jobs:
+        - name: pytest
+          commands:
+            - sem-version python 3.7
+            - checkout
+            - python -m pip install --upgrade pip
+            - curl -sSLo $HOME/get-poetry.py https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py
+            - python $HOME/get-poetry.py --preview --yes
+            - source $HOME/.poetry/env
+            - poetry install --no-root
+            - python -m pytest --cov --flake8
+              --mypy --mypy-ignore-missing-imports --cache-clear
