@@ -3,8 +3,10 @@ site_url: https://pyotr.readthedocs.io
 repo_url: https://github.com/berislavlopac/pyotr
 site_description: Pyotr is a Python library for serving and consuming REST APIs based on OpenAPI specifications.
 site_author: Berislav Lopac <berislav@lopac.net>
-theme: readthedocs
+theme:
+  name: readthedocs
+  custom_dir: docs_custom
 nav:
-- 'index.md'
-- 'server.md'
-- 'client.md'
+  - 'index.md'
+  - 'server.md'
+  - 'client.md'
