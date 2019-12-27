@@ -68,9 +68,11 @@ class Application(Starlette):
         if operation_id is None:
             operation_id = endpoint_fn.__name__
         if self.enforce_case and operation_id not in self._operations:
-            operation_id = {snakecase(op_id): op_id for op_id in self._operations}.get(operation_id)
+            operation_id_key = {snakecase(op_id): op_id for op_id in self._operations}.get(operation_id)
+        else:
+            operation_id_key = operation_id
         try:
-            operation = self._operations[operation_id]
+            operation = self._operations[operation_id_key]
         except KeyError as e:
             raise ValueError(f"Unknown operationId: {operation_id}.") from e
 

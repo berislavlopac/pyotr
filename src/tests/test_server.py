@@ -192,3 +192,16 @@ def test_endpoint_decorator_with_operation_id(spec_dict):
     assert route.endpoint.__wrapped__ is foo_bar
     assert not iscoroutinefunction(foo_bar)
     assert iscoroutinefunction(route.endpoint)
+
+
+def test_endpoint_decorator_with_incorrect_operation_id(spec_dict):
+    operation_id = "iDontExist"
+    app = Application(spec_dict)
+    assert app.routes == []
+
+    with pytest.raises(ValueError) as ex:
+        @app.endpoint(operation_id)
+        def foo_bar(request):
+            return {}
+
+        assert str(ex) == f"ValueError: Unknown operationId: {operation_id}."
