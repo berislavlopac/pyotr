@@ -15,6 +15,8 @@ class SpecFileTypes(Enum):
 
 
 def get_spec_from_file(path: Union[Path, str]) -> Spec:
+    """ Loads a local file and creates an OpenAPI `Spec` object.
+    """
     path = Path(path)
     suffix = path.suffix[1:].lower()
     with open(path) as spec_file:

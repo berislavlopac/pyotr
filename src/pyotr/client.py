@@ -67,5 +67,7 @@ class Client:
 
     @classmethod
     def from_file(cls, path: Union[Path, str], **kwargs):
+        """ Creates an instance of the class by loading the spec from a local file.
+        """
         spec = get_spec_from_file(path)
         return cls(spec, **kwargs)
