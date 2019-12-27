@@ -38,18 +38,18 @@ For example:
 The value of `spec` is either a Python dictionary of the OpenAPI spec, or an `openapi-core` `Spec` object. There
 is a helper class method which will load the spec provided a path in a specification file:
 
-    app = Application.from_file('path/to/spec.yaml')
+    app = Application.from_file('myserver/spec.yaml')
 
 Optionally, a module containing endpoint functions (see below) can be added as a keyword argument. It can be specified
-as the dot-separated path to the module location; in the above example, it might be the file `path/to/endpoints.py`
-or the directory `path/to/endpoints/`. Alternatively, `module` can be the actual imported module:
+as the dot-separated path to the module location; in the above example, it might be the file `myserver/endpoints.py`
+or the directory `myserver/endpoints/`. Alternatively, `module` can be the actual imported module:
 
-    from path.to import endpoints
+    from myserver import endpoints
     app = Application(api_spec, module=endpoints)
     
 The `Application` constructor also accepts the following keyword arguments:
 
-* `validate_responses`: Boolean (defaults to `True`) If `True`, each response will be validated agains the spec
+* `validate_responses`: Boolean (defaults to `True`) If `True`, each response will be validated against the spec
   before being sent back to the caller.
 * `enforce_case`: Boolean (defaults to `True`). If `true`, the `operationId` values will be normalized to snake case
   when setting endpoint functions. For example, `operationId` `fooBar` will expect the function named `foo_bar`.
@@ -89,20 +89,49 @@ recognise. Each endpoint has a [field](https://swagger.io/specification/#operati
 which is supposed to be globally unique; Pyotr takes advantage of this field to find the corresponding endpoint
 function.
 
-If a module is passed to the `Application`, the app will at runtime look at all the `operationId` values in the spec
-and try to find the one which  a route for each of them.
+Endpoint functions can be defined in several ways:
 
-If the module is in the form of a dot-separated path, `pyotr` will locate the endpoint module by combining the `base` 
-argument and the `operationId` value, converting the function name to snake case if necessary. E.g. if the base is 
-`path.to.endpoints` and the `operationId` is `fooBar`, it will import the `foo_bar` function located in either 
-`path/to/endpoints.py` (or `path/to/endpoints/__init__.py`). Also, if the `operationId` value contains dots it will 
-try to build the full path, so `some.extra.levels.fooBar` will look for the module 
-`path/to/endpoints/some/extra/levels.py`.
 
-Alternatively, endpoints can be set manually, using the `set_endpoint` method:
+#### A Python Module
+
+The first way is as a Python module that contains the endpoint functions. For example, assume that we have the module 
+`server/endpoints.py`, looking something like this:
+
+    async def foo_endpoint(request):
+        return {"foo": "bar"}
+        
+    async def bar_endpoint(request):
+        return {"bar": "foo"}
+        
+We can then define our application in the following way:
+
+    from myserver import endpoints
+
+    app = Application(spec=api_spec, module=endpoints)
+
+Assuming, of course, that our OpenAPI spec contains `operationId`s named `fooEndpoint` and `barEndpoint`.
+
+
+#### A Python Module Path
+    
+Alternatively, instead of an imported module we can pass a string in the form of a dot-separated path; for example,
+`myserver.endpoints`. The equivalent of the example above would now be:
+
+    app = Application(spec=api_spec, module="myserver.endpoints")
+
+`pyotr` will try to locate the endpoint module by combining the `module` argument and the `operationId` value, 
+converting the function name to snake case if necessary. E.g. if the base is `myserver.endpoints` and the 
+`operationId` is `fooEndpoint`, it will import the `foo_endpoint` function located in either `myserver/endpoints.py` 
+(or `myserver/endpoints/__init__.py`). Also, if the `operationId` value itself contains dots it will try to build 
+the full path, so `some.extra.levels.fooBar` will look for the module `myserver/endpoints/some/extra/levels.py`.
+
+
+#### Setting Individual Endpoints
+
+The endpoints can also be set individually, using the `set_endpoint` method:
 
     from pyotr.server import Application
-    from path.to.endpoints import some_endpoint
+    from myserver.endpoints import some_endpoint, another_endpoint
 
     app = Application(spec=api_spec)
     
@@ -111,7 +140,10 @@ Alternatively, endpoints can be set manually, using the `set_endpoint` method:
 Pyotr uses the function name to determine the operation. In the example above it would be set on the `operationId` 
 named `someEndpoint`. Alternatively, the `operationId` can be provided explicitly:
     
-    app.set_endpoint(some_endpoint, operation_id=`someOtherOperationId`)
+    app.set_endpoint(another_endpoint, operation_id="someOtherOperationId")
+    
+
+#### The Endpoint Decorator
 
 It is also possible to define endpoints as they are defines, using the `endpoint` decorator, which works analogous 
 to the `set_endpoint` method:
@@ -122,6 +154,10 @@ to the `set_endpoint` method:
     def some_endpoint(request):
         ...
         
-    @app.endpoint(operation_id=`someOtherOperationId`):
+    @app.endpoint(operation_id="someOtherOperationId"):
     def another_endpoint(request):
+        ...
+        
+    @app.endpoint("aCompletelyDifferentOperationId"):
+    def yet_another_endpoint(request):
         ...
