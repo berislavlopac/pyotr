@@ -1,26 +1,14 @@
-from openapi_core.wrappers.base import BaseOpenAPIResponse
+from openapi_core.validation.response.datatypes import OpenAPIResponse
 
 
-class ClientOpenAPIResponse(BaseOpenAPIResponse):
-    def __init__(self, response):
-        self.response = response
+class ClientOpenAPIResponseFactory(object):
 
-    @property
-    def body(self):
-        return self.response.content
-
-    @property
-    def data(self):
-        return self.body
-
-    @property
-    def status_code(self):
-        return self.response.status_code
-
-    @property
-    def mimetype(self):
-        return self.response.headers.get("content-type")
-
-    @property
-    def payload(self):
-        return self.response.json()
+    @classmethod
+    def create(cls, response):
+        oapi_response = OpenAPIResponse(
+            data=response.content,
+            status_code=response.status_code,
+            mimetype=response.headers.get("content-type"),
+        )
+        oapi_response.payload = response.json()
+        return oapi_response

@@ -82,8 +82,8 @@ class Application(Starlette):
 
         @wraps(endpoint_fn)
         async def wrapper(request, **kwargs) -> Response:
-            validation_request = await StarletteOpenAPIRequest.prepare(request)
-            request_validation = RequestValidator(self.spec).validate(validation_request)
+            request = await StarletteOpenAPIRequest(request)
+            request_validation = RequestValidator(self.spec).validate(request)
             request_validation.raise_for_errors()
 
             if iscoroutinefunction(endpoint_fn):
@@ -95,9 +95,7 @@ class Application(Starlette):
 
             # TODO: pass a list of operation IDs to specify which responses not to validate
             if self.validate_responses:
-                ResponseValidator(self.spec).validate(
-                    validation_request, StarletteOpenAPIResponse(response)
-                ).raise_for_errors()
+                ResponseValidator(self.spec).validate(request, StarletteOpenAPIResponse(response)).raise_for_errors()
             return response
 
         for server_path in self._server_paths:

@@ -1,2 +1,5 @@
-from .client import ClientOpenAPIResponse
-from .starlette import StarletteOpenAPIResponse
+from .client import ClientOpenAPIResponseFactory
+from .starlette import StarletteOpenAPIResponseFactory
+
+ClientOpenAPIResponse = ClientOpenAPIResponseFactory.create
+StarletteOpenAPIResponse = StarletteOpenAPIResponseFactory.create

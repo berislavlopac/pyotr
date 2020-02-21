@@ -1,51 +1,35 @@
-from openapi_core.wrappers.base import BaseOpenAPIRequest
-from starlette.requests import Request
+from urllib.parse import urljoin
+
+from openapi_core.validation.request.datatypes import RequestParameters, OpenAPIRequest
 from starlette.routing import Match
 
 
-class StarletteOpenAPIRequest(BaseOpenAPIRequest):
-    def __init__(self, request: Request):
-        self.request = request
-        self.body = b""
+class StarletteOpenAPIRequestFactory:
 
     @classmethod
-    async def prepare(cls, request):
-        req = cls(request)
-        req.body = await req.request.body()
-        return req
-
-    @property
-    def host_url(self):
-        url = f"{self.request.url.scheme}://{self.request.url.hostname}"
-        if self.request.url.port:
-            url = f"{url}:{self.request.url.port}"
-        return url
-
-    @property
-    def path(self):
-        return self.request["path"]
-
-    @property
-    def method(self):
-        return self.request.method.lower()
-
-    @property
-    def path_pattern(self):
-        for route in self.request.app.router.routes:
-            match, _ = route.matches(self.request)
+    async def create(cls, request):
+        path_pattern = request["path"]
+        for route in request.app.router.routes:
+            match, _ = route.matches(request)
             if match == Match.FULL:
-                return route.path
-        return self.path
+                path_pattern = route.path
+                break
 
-    @property
-    def parameters(self):
-        return {
-            "path": self.request.path_params,
-            "query": self.request.query_params,
-            "header": self.request.headers,
-            "cookie": self.request.cookies,
-        }
+        host_url = f"{request.url.scheme}://{request.url.hostname}"
+        if request.url.port:
+            host_url = f"{host_url}:{request.url.port}"
 
-    @property
-    def mimetype(self):
-        return self.request.headers["content-type"]
+        parameters = RequestParameters(
+            path=request.path_params,
+            query=request.query_params,
+            header=request.headers,
+            cookie=request.cookies,
+        )
+
+        return OpenAPIRequest(
+            full_url_pattern=urljoin(host_url, path_pattern),
+            method=request.method.lower(),
+            parameters=parameters,
+            body=await request.body(),
+            mimetype=request.headers.get("content-type"),
+        )
