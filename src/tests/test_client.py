@@ -1,16 +1,16 @@
 import pytest
+from openapi_core.validation.response.datatypes import OpenAPIResponse
 from starlette.testclient import TestClient
 
 from pyotr.client import Client
 from pyotr.server import Application
-from pyotr.validation.responses.client import ClientOpenAPIResponse
 
 
 def test_client_calls_endpoint(spec_dict, config):
     app = Application(spec_dict, module=config.endpoint_base)
     client = Client(spec_dict, client=TestClient(app))
     response = client.dummy_test_endpoint()
-    assert isinstance(response, ClientOpenAPIResponse)
+    assert isinstance(response, OpenAPIResponse)
     assert response.payload == {"foo": "bar"}
 
 
@@ -19,7 +19,7 @@ def test_client_calls_endpoint_using_server_with_path(spec_dict, config):
     app = Application(spec_dict, module=config.endpoint_base)
     client = Client(spec_dict, client=TestClient(app))
     response = client.dummy_test_endpoint()
-    assert isinstance(response, ClientOpenAPIResponse)
+    assert isinstance(response, OpenAPIResponse)
     assert response.payload == {"foo": "bar"}
 
 
