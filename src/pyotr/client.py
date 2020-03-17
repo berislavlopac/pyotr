@@ -62,7 +62,9 @@ class Client:
             response = self.response_class(api_response)
             self.validator.validate(request, response).raise_for_errors()
             return response
-
+        operation.__doc__ = op_spec.summary
+        if op_spec.description:
+            operation.__doc__ += f"\n\n{op_spec.description}"
         return operation
 
     @classmethod
