@@ -96,7 +96,9 @@ class Application(Starlette):
 
             # TODO: pass a list of operation IDs to specify which responses not to validate
             if self.validate_responses:
-                ResponseValidator(self.spec).validate(openapi_request, StarletteOpenAPIResponse(response)).raise_for_errors()
+                ResponseValidator(self.spec).validate(
+                    openapi_request, StarletteOpenAPIResponse(response)
+                ).raise_for_errors()
             return response
 
         for server_path in self._server_paths:

@@ -96,6 +96,5 @@ def test_from_file_raises_exception_if_unknown_type(config):
 def test_endpoint_docstring_constructed_from_spec(spec_dict):
     client = Client(spec_dict)
     assert client.dummy_test_endpoint.__doc__ == (
-        "A dummy test endpoint.\n\nA test endpoint that doe nothing,"
-        " so is pretty dummy, but works fine for testing."
+        "A dummy test endpoint.\n\nA test endpoint that doe nothing," " so is pretty dummy, but works fine for testing."
     )
