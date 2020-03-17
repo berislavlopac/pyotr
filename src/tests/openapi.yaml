@@ -9,6 +9,8 @@ paths:
   /test:
     get:
       operationId: dummyTestEndpoint
+      summary: A dummy test endpoint.
+      description: A test endpoint that doe nothing, so is pretty dummy, but works fine for testing.
       responses:
         '200':
           description: successful operation

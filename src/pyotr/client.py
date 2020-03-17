@@ -65,7 +65,7 @@ class Client:
             self.validator.validate(request, response).raise_for_errors()
             return response
 
-        operation.__doc__ = op_spec.summary
+        operation.__doc__ = op_spec.summary or op_spec.operation_id
         if op_spec.description:
             operation.__doc__ += f"\n\n{op_spec.description}"
         return operation
