@@ -11,7 +11,7 @@ def test_client_calls_endpoint(spec_dict, config):
     client = Client(spec_dict, client=TestClient(app))
     response = client.dummy_test_endpoint()
     assert isinstance(response, OpenAPIResponse)
-    assert response.payload == {"foo": "bar"}
+    assert response.data == b'{"foo":"bar"}'
 
 
 def test_client_calls_endpoint_using_server_with_path(spec_dict, config):
@@ -20,7 +20,7 @@ def test_client_calls_endpoint_using_server_with_path(spec_dict, config):
     client = Client(spec_dict, client=TestClient(app))
     response = client.dummy_test_endpoint()
     assert isinstance(response, OpenAPIResponse)
-    assert response.payload == {"foo": "bar"}
+    assert response.data == b'{"foo":"bar"}'
 
 
 def test_client_calls_endpoint_with_custom_headers(spec_dict, config, monkeypatch):
