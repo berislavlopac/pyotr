@@ -83,11 +83,19 @@ def test_incorrect_endpoint_raises_error(spec_dict):
 @pytest.mark.parametrize("filename", ("openapi.json", "openapi.yaml"))
 def test_from_file(config, filename):
     file_path = config.test_dir / filename
-    app = Client.from_file(file_path)
-    assert app.spec.info.title == "Test Spec"
+    client = Client.from_file(file_path)
+    assert client.spec.info.title == "Test Spec"
 
 
 def test_from_file_raises_exception_if_unknown_type(config):
     file_path = config.test_dir / "openapi.unknown"
     with pytest.raises(RuntimeError):
         Client.from_file(file_path)
+
+
+def test_endpoint_docstring_constructed_from_spec(spec_dict):
+    client = Client(spec_dict)
+    assert client.dummy_test_endpoint.__doc__ == (
+        "A dummy test endpoint.\n\nA test endpoint that doe nothing,"
+        " so is pretty dummy, but works fine for testing."
+    )
