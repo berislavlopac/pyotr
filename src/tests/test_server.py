@@ -200,6 +200,7 @@ def test_endpoint_decorator_with_incorrect_operation_id(spec_dict):
     assert app.routes == []
 
     with pytest.raises(ValueError) as ex:
+
         @app.endpoint(operation_id)
         def foo_bar(request):
             return {}

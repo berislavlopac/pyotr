@@ -6,7 +6,6 @@ from openapi_core.validation.request.datatypes import RequestParameters, OpenAPI
 
 
 class ClientOpenAPIRequest(OpenAPIRequest):
-
     def __init__(self, host_url: str, op_spec: Operation):
         self.spec = op_spec
         self._url_parts = urlsplit(host_url)
@@ -18,12 +17,7 @@ class ClientOpenAPIRequest(OpenAPIRequest):
         self.full_url_pattern = urljoin(host_url, self._path_pattern)
         self.method = op_spec.http_method.lower()
         self.body = None
-        self.parameters = RequestParameters(
-            path={},
-            query=parse_qs(self._url_parts.query),
-            header={},
-            cookie={},
-        )
+        self.parameters = RequestParameters(path={}, query=parse_qs(self._url_parts.query), header={}, cookie={},)
         self.mimetype = NotImplemented
 
     @property

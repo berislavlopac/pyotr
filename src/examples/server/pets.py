@@ -1,15 +1,5 @@
 async def find_pets_by_status(request):
-    return {
-        "pets": [
-            {
-                "name": "Lady Athena",
-                "photoUrls": [
-                    "sdfsdfasdf",
-                    "asdasdasdasd"
-                ]
-            }
-        ]
-    }
+    return {"pets": [{"name": "Lady Athena", "photoUrls": ["sdfsdfasdf", "asdasdasdasd"]}]}
 
 
 async def update_pet(request):

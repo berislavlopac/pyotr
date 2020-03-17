@@ -5,7 +5,6 @@ from starlette.routing import Match
 
 
 class StarletteOpenAPIRequestFactory:
-
     @classmethod
     async def create(cls, request):
         path_pattern = request["path"]
@@ -20,10 +19,7 @@ class StarletteOpenAPIRequestFactory:
             host_url = f"{host_url}:{request.url.port}"
 
         parameters = RequestParameters(
-            path=request.path_params,
-            query=request.query_params,
-            header=request.headers,
-            cookie=request.cookies,
+            path=request.path_params, query=request.query_params, header=request.headers, cookie=request.cookies,
         )
 
         return OpenAPIRequest(
