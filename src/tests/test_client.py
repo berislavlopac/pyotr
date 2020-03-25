@@ -99,6 +99,7 @@ def test_endpoint_docstring_constructed_from_spec(spec_dict):
         "A dummy test endpoint.\n\nA test endpoint that doe nothing," " so is pretty dummy, but works fine for testing."
     )
 
+
 def test_endpoint_docstring_constructed_with_default_values(spec_dict):
     client = Client(spec_dict)
     assert client.dummy_test_endpoint_with_argument.__doc__ == "dummyTestEndpointWithArgument"

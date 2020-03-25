@@ -7,5 +7,3 @@ class ClientOpenAPIResponseFactory(object):
         return OpenAPIResponse(
             data=response.content, status_code=response.status_code, mimetype=response.headers.get("content-type"),
         )
-
-
