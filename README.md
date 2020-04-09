@@ -1,8 +1,8 @@
 Pyotr
 =====
 
-[![Documentation Status](https://readthedocs.org/projects/pyotr/badge/?version=latest)](https://pyotr.readthedocs.io/en/latest/?badge=latest)
-[![CI builds](https://b11c.semaphoreci.com/badges/pyotr.svg?style=shields)](https://b11c.semaphoreci.com/badges/pyotr.svg?style=shields)
+[![Documentation Status](https://readthedocs.org/projects/pyotr/badge/?version=latest)](https://pyotr.readthedocs.io/en/latest/)
+[![CI builds](https://b11c.semaphoreci.com/badges/pyotr.svg?style=shields)](https://b11c.semaphoreci.com/projects/pyotr)
 
 **Pyotr** is a Python library for serving and consuming REST APIs based on 
 [OpenAPI](https://swagger.io/resources/open-api/) specifications. Its name is acronym of "Python OpenAPI to REST".
