@@ -1,15 +1,16 @@
 from pathlib import Path
-from typing import Optional, Type, Union
+from types import ModuleType
+from typing import Optional, Type, Union, Callable, Any
 
-import httpx
+import httpx.api
 from openapi_core import create_spec
 from openapi_core.schema.servers.models import Server
 from openapi_core.schema.specs.models import Spec
 from openapi_core.shortcuts import ResponseValidator
+from openapi_core.validation.response.datatypes import OpenAPIResponse
 from stringcase import snakecase
 
-from pyotr.utils import Requestable
-from pyotr.utils import get_spec_from_file
+from pyotr.utils import Requestable, get_spec_from_file
 from pyotr.validation.requests import ClientOpenAPIRequest
 from pyotr.validation.responses import ClientOpenAPIResponse
 
@@ -20,16 +21,16 @@ class Client:
         spec: Union[Spec, dict],
         *,
         server_url: Optional[str] = None,
-        client: Requestable = httpx,
+        client: Union[ModuleType, Requestable] = httpx.api,
         request_class: Type[ClientOpenAPIRequest] = ClientOpenAPIRequest,
-        response_class: Type[ClientOpenAPIResponse] = ClientOpenAPIResponse,
+        response_factory: Callable[[Any], OpenAPIResponse] = ClientOpenAPIResponse,
     ):
         if not isinstance(spec, Spec):
             spec = create_spec(spec)
         self.spec = spec
         self.client = client
         self.request_class = request_class
-        self.response_class = response_class
+        self.response_factory = response_factory
 
         if server_url is None:
             server_url = self.spec.servers[0].url
@@ -61,7 +62,7 @@ class Client:
                 method=request.method, url=request.url, data=request.body, headers=request.headers
             )
             api_response.raise_for_status()
-            response = self.response_class(api_response)
+            response = self.response_factory(api_response)
             self.validator.validate(request, response).raise_for_errors()
             return response
 
