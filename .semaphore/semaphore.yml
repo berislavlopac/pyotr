@@ -17,5 +17,4 @@ blocks:
             - python $HOME/get-poetry.py --preview --yes
             - source $HOME/.poetry/env
             - poetry install --no-root
-            - python -m pytest --cov --flake8
-              --mypy --mypy-ignore-missing-imports --cache-clear
+            - python -m pytest --cov --flake8 --mypy --mypy-ignore-missing-imports --cache-clear

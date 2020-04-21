@@ -103,3 +103,19 @@ def test_endpoint_docstring_constructed_from_spec(spec_dict):
 def test_endpoint_docstring_constructed_with_default_values(spec_dict):
     client = Client(spec_dict)
     assert client.dummy_test_endpoint_with_argument.__doc__ == "dummyTestEndpointWithArgument"
+
+
+def test_common_headers_included_in_request(spec_dict, config, monkeypatch):
+    app = Application(spec_dict, module=config.endpoint_base)
+    client = Client(spec_dict, client=TestClient(app), headers={"foo": "bar"})
+
+    def patch_request(request):
+        def wrapper(*args, **kwargs):
+            client.request_info = {"args": args, "kwargs": kwargs}
+            return request(*args, **kwargs)
+
+        return wrapper
+
+    monkeypatch.setattr(client.client, "request", patch_request(client.client.request))
+    client.dummy_test_endpoint(headers_={"baz": "bam"})
+    assert client.request_info["kwargs"]["headers"] == {"foo": "bar", "baz": "bam"}

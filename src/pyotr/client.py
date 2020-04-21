@@ -24,6 +24,7 @@ class Client:
         client: Union[ModuleType, Requestable] = httpx.api,
         request_class: Type[ClientOpenAPIRequest] = ClientOpenAPIRequest,
         response_factory: Callable[[Any], OpenAPIResponse] = ClientOpenAPIResponse,
+        headers: Optional[dict] = None,
     ):
         if not isinstance(spec, Spec):
             spec = create_spec(spec)
@@ -31,6 +32,7 @@ class Client:
         self.client = client
         self.request_class = request_class
         self.response_factory = response_factory
+        self.common_headers = headers or {}
 
         if server_url is None:
             server_url = self.spec.servers[0].url
@@ -56,8 +58,10 @@ class Client:
         def operation(
             self, *args, body_: Optional[Union[dict, list]] = None, headers_: Optional[dict] = None, **kwargs,
         ):
+            request_headers = self.common_headers.copy()
+            request_headers.update(headers_ or {})
             request = self.request_class(self.server_url, op_spec)
-            request.prepare(*args, data_=body_, headers_=headers_, **kwargs)
+            request.prepare(*args, data_=body_, headers_=request_headers, **kwargs)
             api_response = self.client.request(
                 method=request.method, url=request.url, data=request.body, headers=request.headers
             )
