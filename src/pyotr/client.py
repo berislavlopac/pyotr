@@ -61,10 +61,15 @@ class Client:
             request_headers = self.common_headers.copy()
             request_headers.update(headers_ or {})
             request = self.request_class(self.server_url, op_spec)
-            request.prepare(*args, data_=body_, headers_=request_headers, **kwargs)
-            api_response = self.client.request(
-                method=request.method, url=request.url, data=request.body, headers=request.headers
-            )
+            request.prepare(*args, body_=body_, headers_=request_headers, **kwargs)
+            request_params = {
+                "method": request.method,
+                "url": request.url,
+                "headers": request.headers,
+            }
+            if request.body:
+                request_params["json" if "json" in request.mimetype else "data"] = request.body
+            api_response = self.client.request(**request_params)
             api_response.raise_for_status()
             response = self.response_factory(api_response)
             self.validator.validate(request, response).raise_for_errors()

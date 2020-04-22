@@ -18,7 +18,7 @@ class ClientOpenAPIRequest(OpenAPIRequest):
         self.method = op_spec.http_method.lower()
         self.body = None
         self.parameters = RequestParameters(path={}, query=parse_qs(self._url_parts.query), header={}, cookie={},)
-        self.mimetype = NotImplemented
+        self.mimetype = list(op_spec.request_body.content)[0] if op_spec.request_body else None
 
     @property
     def url(self):
@@ -27,7 +27,17 @@ class ClientOpenAPIRequest(OpenAPIRequest):
         url_parts["query"] = urlencode(self.parameters.query)
         return urlunsplit(url_parts.values())
 
-    def prepare(self, *args, **kwargs):
+    def prepare(self, *args, body_=None, headers_=None, **kwargs):
+        self._set_path_params(*args)
+        self.parameters.header.update(headers_ or {})
+        self.parameters.query = kwargs
+        self.body = body_ or {}
+        content_type_header = self.parameters.header.pop("content-type", None)
+        if content_type_header:
+            self.mimetype = content_type_header
+        return self
+
+    def _set_path_params(self, *args):
         len_vars = len(self.url_vars)
         if len(args) != len_vars:
             error_message = f"Incorrect arguments: {self.spec.operation_id} accepts"
@@ -38,11 +48,7 @@ class ClientOpenAPIRequest(OpenAPIRequest):
             else:
                 error_message += f" no positional arguments"
             raise RuntimeError(error_message)
-        self.parameters.header = kwargs.pop("headers_", None) or {}
         self.parameters.path = dict(zip(self.url_vars, args))
-        self.parameters.query = kwargs
-        self.mimetype = self.parameters.header.get("content-type", None)
-        return self
 
     @property
     def headers(self):

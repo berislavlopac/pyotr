@@ -18,6 +18,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Thing'
+    post:
+      operationId: dummyPostEndpoint
+      summary: A dummy test endpoint with POST method.
+      description: A test endpoint that does nothing, so is pretty dummy, but works fine for testing POST method.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                foo:
+                  type: string
+      responses:
+        '204':
+          description: no content
   /test/{test_arg}:
     get:
       operationId: dummyTestEndpointWithArgument

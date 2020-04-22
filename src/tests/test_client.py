@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 import pytest
 from openapi_core.validation.response.datatypes import OpenAPIResponse
 from starlette.testclient import TestClient
@@ -12,6 +14,14 @@ def test_client_calls_endpoint(spec_dict, config):
     response = client.dummy_test_endpoint()
     assert isinstance(response, OpenAPIResponse)
     assert response.data == b'{"foo":"bar"}'
+
+
+def test_client_calls_endpoint_with_body(spec_dict, config):
+    app = Application(spec_dict, module=config.endpoint_base)
+    client = Client(spec_dict, client=TestClient(app))
+    response = client.dummy_post_endpoint(body_={"foo": "bar"})
+    assert isinstance(response, OpenAPIResponse)
+    assert response.status_code == HTTPStatus.NO_CONTENT
 
 
 def test_client_calls_endpoint_using_server_with_path(spec_dict, config):
@@ -96,7 +106,7 @@ def test_from_file_raises_exception_if_unknown_type(config):
 def test_endpoint_docstring_constructed_from_spec(spec_dict):
     client = Client(spec_dict)
     assert client.dummy_test_endpoint.__doc__ == (
-        "A dummy test endpoint.\n\nA test endpoint that doe nothing," " so is pretty dummy, but works fine for testing."
+        "A dummy test endpoint.\n\nA test endpoint that does nothing, so is pretty dummy, but works fine for testing."
     )
 
 

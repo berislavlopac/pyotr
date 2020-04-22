@@ -17,7 +17,7 @@
       "get": {
         "operationId": "dummyTestEndpoint",
         "summary": "A dummy test endpoint.",
-        "description": "A test endpoint that doe nothing, so is pretty dummy, but works fine for testing.",
+        "description": "A test endpoint that does nothing, so is pretty dummy, but works fine for testing.",
         "responses": {
           "200": {
             "description": "successful operation",
@@ -28,6 +28,30 @@
                 }
               }
             }
+          }
+        }
+      },
+      "post": {
+        "operationId": "dummyPostEndpoint",
+        "summary": "A dummy test endpoint with POST method.",
+        "description": "A test endpoint that does nothing, so is pretty dummy, but works fine for testing POST method.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "foo": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "no content"
           }
         }
       }
