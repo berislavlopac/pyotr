@@ -39,8 +39,8 @@ class Application(Starlette):
         self.validate_responses = validate_responses
         self.enforce_case = enforce_case
         self._server_paths = {urlsplit(server.url).path for server in self.spec.servers}
-        self.custom_request_formatters = None
-        self.custom_response_formatters = None
+        self.custom_formatters = None
+        self.custom_media_type_deserializers = None
 
         self._operations = {
             oper.operation_id: Operation(path, method)
@@ -87,7 +87,8 @@ class Application(Starlette):
         async def wrapper(request: Request, **kwargs) -> Response:
             openapi_request = await StarletteOpenAPIRequest(request)
             RequestValidator(
-                self.spec, custom_formatters=self.custom_request_formatters
+                self.spec, custom_formatters=self.custom_formatters,
+                custom_media_type_deserializers=self.custom_media_type_deserializers
             ).validate(openapi_request).raise_for_errors()
 
             if iscoroutinefunction(endpoint_fn):
@@ -100,7 +101,8 @@ class Application(Starlette):
             # TODO: pass a list of operation IDs to specify which responses not to validate
             if self.validate_responses:
                 ResponseValidator(
-                    self.spec, custom_formatters=self.custom_response_formatters
+                    self.spec, custom_formatters=self.custom_formatters,
+                    custom_media_type_deserializers=self.custom_media_type_deserializers
                 ).validate(
                     openapi_request, StarletteOpenAPIResponse(response)
                 ).raise_for_errors()
