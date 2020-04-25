@@ -39,6 +39,8 @@ class Application(Starlette):
         self.validate_responses = validate_responses
         self.enforce_case = enforce_case
         self._server_paths = {urlsplit(server.url).path for server in self.spec.servers}
+        self.custom_request_formatters = None
+        self.custom_response_formatters = None
 
         self._operations = {
             oper.operation_id: Operation(path, method)
@@ -84,8 +86,9 @@ class Application(Starlette):
         @wraps(endpoint_fn)
         async def wrapper(request: Request, **kwargs) -> Response:
             openapi_request = await StarletteOpenAPIRequest(request)
-            request_validation = RequestValidator(self.spec).validate(openapi_request)
-            request_validation.raise_for_errors()
+            RequestValidator(
+                self.spec, custom_formatters=self.custom_request_formatters
+            ).validate(openapi_request).raise_for_errors()
 
             if iscoroutinefunction(endpoint_fn):
                 response = await endpoint_fn(request, **kwargs)
@@ -96,13 +99,15 @@ class Application(Starlette):
 
             # TODO: pass a list of operation IDs to specify which responses not to validate
             if self.validate_responses:
-                ResponseValidator(self.spec).validate(
+                ResponseValidator(
+                    self.spec, custom_formatters=self.custom_response_formatters
+                ).validate(
                     openapi_request, StarletteOpenAPIResponse(response)
                 ).raise_for_errors()
             return response
 
         for server_path in self._server_paths:
-            self.add_route(server_path + operation.path, wrapper, [operation.method])
+            self.add_route(server_path + operation.path, wrapper, [operation.method], name=operation_id)
 
     def endpoint(self, operation_id: Union[Callable, str]):
         """ Decorator for setting endpoints.
