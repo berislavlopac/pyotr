@@ -20,3 +20,7 @@ async def dummy_post_endpoint(request):
     body = await request.body()
     assert json.loads(body.decode()) == {"foo": "bar"}
     return Response(status_code=HTTPStatus.NO_CONTENT.value)
+
+
+async def endpoint_returning_nothing(request):
+    ...

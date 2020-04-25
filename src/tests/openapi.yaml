@@ -59,6 +59,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Thing'
+  /test-nothing:
+    get:
+      operationId: endpointReturningNothing
+      responses:
+        '204':
+          description: no content
 components:
   schemas:
     Thing:

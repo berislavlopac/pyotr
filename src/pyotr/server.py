@@ -97,6 +97,11 @@ class Application(Starlette):
                 response = endpoint_fn(request, **kwargs)
             if isinstance(response, dict):
                 response = JSONResponse(response)
+            elif not isinstance(response, Response):
+                raise ValueError(
+                    f"The endpoint function `{endpoint_fn.__name__}` must return"
+                    " either a dict or a Starlette Response instance."
+                )
 
             # TODO: pass a list of operation IDs to specify which responses not to validate
             if self.validate_responses:
