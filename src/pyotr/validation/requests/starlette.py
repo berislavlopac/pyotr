@@ -19,7 +19,10 @@ class StarletteOpenAPIRequestFactory:
             host_url = f"{host_url}:{request.url.port}"
 
         parameters = RequestParameters(
-            path=request.path_params, query=request.query_params, header=request.headers, cookie=request.cookies,
+            path=request.path_params,
+            query=request.query_params,
+            header=dict(request.headers),
+            cookie=request.cookies,
         )
 
         return OpenAPIRequest(
