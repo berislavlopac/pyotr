@@ -1,7 +1,7 @@
 from collections import namedtuple
 from functools import wraps
 from importlib import import_module
-from inspect import iscoroutinefunction
+from inspect import iscoroutine
 from pathlib import Path
 from types import ModuleType
 from typing import Callable, Union, Optional
@@ -91,10 +91,9 @@ class Application(Starlette):
                 custom_media_type_deserializers=self.custom_media_type_deserializers
             ).validate(openapi_request).raise_for_errors()
 
-            if iscoroutinefunction(endpoint_fn):
-                response = await endpoint_fn(request, **kwargs)
-            else:
-                response = endpoint_fn(request, **kwargs)
+            response = endpoint_fn(request, **kwargs)
+            if iscoroutine(response):
+                response = await response
             if isinstance(response, dict):
                 response = JSONResponse(response)
             elif not isinstance(response, Response):
