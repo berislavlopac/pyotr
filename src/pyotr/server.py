@@ -1,5 +1,6 @@
 from collections import namedtuple
 from functools import wraps
+from http import HTTPStatus
 from importlib import import_module
 from inspect import iscoroutine
 from pathlib import Path
@@ -10,7 +11,9 @@ from urllib.parse import urlsplit
 from openapi_core import create_spec
 from openapi_core.schema.specs.models import Spec
 from openapi_core.shortcuts import RequestValidator, ResponseValidator
+from openapi_core.validation.exceptions import InvalidSecurity
 from starlette.applications import Starlette
+from starlette.exceptions import HTTPException
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 from stringcase import snakecase
@@ -86,10 +89,14 @@ class Application(Starlette):
         @wraps(endpoint_fn)
         async def wrapper(request: Request, **kwargs) -> Response:
             openapi_request = await StarletteOpenAPIRequest(request)
-            RequestValidator(
+            validated_request = RequestValidator(
                 self.spec, custom_formatters=self.custom_formatters,
                 custom_media_type_deserializers=self.custom_media_type_deserializers
-            ).validate(openapi_request).raise_for_errors()
+            ).validate(openapi_request)
+            try:
+                validated_request.raise_for_errors()
+            except InvalidSecurity as ex:
+                raise HTTPException(HTTPStatus.FORBIDDEN, "Invalid security.") from ex
 
             response = endpoint_fn(request, **kwargs)
             if iscoroutine(response):
