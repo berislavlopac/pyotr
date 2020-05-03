@@ -161,3 +161,21 @@ to the `set_endpoint` method:
     @app.endpoint("aCompletelyDifferentOperationId"):
     def yet_another_endpoint(request):
         ...
+
+### Additional Server Configuration
+
+The server instance can be additionally configured with a few OpenAPI-specific custom handlers:
+
+  * **custom_formatters** is a dict of custom [formatter](https://github.com/p1c2u/openapi-core#formats) objects that will be applied both to requests and responses.
+  * **custom_media_type_deserializers** are [functions](https://github.com/p1c2u/openapi-core#deserializers) that can deserialise custom media types.
+
+Example:
+
+    app = Application(spec=api_spec)
+    api.custom_formatters = {
+        "email": EmailFormatter,
+    }
+    api.custom_media_type_deserializers = {
+        "application/protobuf": protobuf_deserializer,
+    }
+ 
