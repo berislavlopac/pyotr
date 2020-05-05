@@ -9,6 +9,7 @@ from typing import Callable, Union, Optional
 from urllib.parse import urlsplit
 
 from openapi_core import create_spec
+from openapi_core.exceptions import OpenAPIError
 from openapi_core.schema.specs.models import Spec
 from openapi_core.shortcuts import RequestValidator, ResponseValidator
 from openapi_core.validation.exceptions import InvalidSecurity
@@ -97,6 +98,8 @@ class Application(Starlette):
                 validated_request.raise_for_errors()
             except InvalidSecurity as ex:
                 raise HTTPException(HTTPStatus.FORBIDDEN, "Invalid security.") from ex
+            except OpenAPIError as ex:
+                raise HTTPException(HTTPStatus.BAD_REQUEST, "Bad request") from ex
 
             response = endpoint_fn(request, **kwargs)
             if iscoroutine(response):
