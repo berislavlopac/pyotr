@@ -7,6 +7,6 @@ theme:
   name: readthedocs
   custom_dir: docs_custom
 nav:
-  - 'index.md'
-  - 'server.md'
-  - 'client.md'
+  - Introduction: 'index.md'
+  - Server: 'server.md'
+  - Client: 'client.md'
