@@ -46,7 +46,7 @@ class ClientOpenAPIRequest(OpenAPIRequest):
                     f" {len_vars} positional argument{'s' if len_vars > 1 else ''}:" f" {', '.join(self.url_vars)}"
                 )
             else:
-                error_message += f" no positional arguments"
+                error_message += " no positional arguments"
             raise RuntimeError(error_message)
         self.parameters.path = dict(zip(self.url_vars, args))
 
