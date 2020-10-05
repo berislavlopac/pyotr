@@ -46,7 +46,8 @@ def test_client_calls_endpoint_with_custom_headers(spec_dict, config, monkeypatc
 
     monkeypatch.setattr(client.client, "request", patch_request(client.client.request))
     client.dummy_test_endpoint(headers_={"foo": "bar"})
-    assert client.request_info["kwargs"]["headers"] == {"foo": "bar"}
+    headers = client.request_info["kwargs"]["headers"]
+    assert dict(headers) == {"foo": "bar"}
 
 
 def test_client_incorrect_args_raises_error(spec_dict, config):
@@ -128,4 +129,5 @@ def test_common_headers_included_in_request(spec_dict, config, monkeypatch):
 
     monkeypatch.setattr(client.client, "request", patch_request(client.client.request))
     client.dummy_test_endpoint(headers_={"baz": "bam"})
-    assert client.request_info["kwargs"]["headers"] == {"foo": "bar", "baz": "bam"}
+    headers = client.request_info["kwargs"]["headers"]
+    assert dict(headers) == {"foo": "bar", "baz": "bam"}
