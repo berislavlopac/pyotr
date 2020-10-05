@@ -23,7 +23,9 @@ def test_server_from_file_raises_exception_if_unknown_type(config):
 def test_server_dotted_endpoint_name(spec_dict):
     spec_dict["paths"]["/test"]["get"]["operationId"] = "endpoints.dummyTestEndpoint"
     spec_dict["paths"]["/test"]["post"]["operationId"] = "endpoints.dummyPostEndpoint"
-    spec_dict["paths"]["/test/{test_arg}"]["get"]["operationId"] = "endpoints.dummyTestEndpointWithArgument"
+    spec_dict["paths"]["/test/{test_arg}"]["get"][
+        "operationId"
+    ] = "endpoints.dummyTestEndpointWithArgument"
     spec_dict["paths"]["/test-async"]["get"]["operationId"] = "endpoints.dummyTestEndpointCoro"
     app = Application(spec_dict, module="tests")
     route = app.routes[0]
@@ -47,7 +49,9 @@ def test_server_endpoints_as_module_dotted_endpoint_name(spec_dict):
 
     spec_dict["paths"]["/test"]["get"]["operationId"] = "endpoints.dummyTestEndpoint"
     spec_dict["paths"]["/test"]["post"]["operationId"] = "endpoints.dummyPostEndpoint"
-    spec_dict["paths"]["/test/{test_arg}"]["get"]["operationId"] = "endpoints.dummyTestEndpointWithArgument"
+    spec_dict["paths"]["/test/{test_arg}"]["get"][
+        "operationId"
+    ] = "endpoints.dummyTestEndpointWithArgument"
     spec_dict["paths"]["/test-async"]["get"]["operationId"] = "endpoints.dummyTestEndpointCoro"
     app = Application(spec_dict, module=tests)
     route = app.routes[0]

@@ -1,6 +1,6 @@
 from urllib.parse import urljoin
 
-from openapi_core.validation.request.datatypes import RequestParameters, OpenAPIRequest
+from openapi_core.validation.request.datatypes import OpenAPIRequest, RequestParameters
 from starlette.routing import Match
 
 

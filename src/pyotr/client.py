@@ -1,8 +1,8 @@
 from pathlib import Path
 from types import ModuleType
-from typing import Optional, Type, Union, Callable, Any
+from typing import Any, Callable, Optional, Type, Union
 
-import httpx.api
+import httpx
 from openapi_core import create_spec
 from openapi_core.schema.servers.models import Server
 from openapi_core.schema.specs.models import Spec
@@ -10,7 +10,7 @@ from openapi_core.shortcuts import ResponseValidator
 from openapi_core.validation.response.datatypes import OpenAPIResponse
 from stringcase import snakecase
 
-from pyotr.utils import Requestable, get_spec_from_file
+from pyotr.utils import get_spec_from_file, Requestable
 from pyotr.validation.requests import ClientOpenAPIRequest
 from pyotr.validation.responses import ClientOpenAPIResponse
 
@@ -21,7 +21,7 @@ class Client:
         spec: Union[Spec, dict],
         *,
         server_url: Optional[str] = None,
-        client: Union[ModuleType, Requestable] = httpx.api,
+        client: Union[ModuleType, Requestable] = httpx,
         request_class: Type[ClientOpenAPIRequest] = ClientOpenAPIRequest,
         response_factory: Callable[[Any], OpenAPIResponse] = ClientOpenAPIResponse,
         headers: Optional[dict] = None,
@@ -49,14 +49,20 @@ class Client:
         for path_spec in spec.paths.values():
             for op_spec in path_spec.operations.values():
                 setattr(
-                    self, snakecase(op_spec.operation_id), self._get_operation(op_spec).__get__(self),
+                    self,
+                    snakecase(op_spec.operation_id),
+                    self._get_operation(op_spec).__get__(self),
                 )
 
     @staticmethod
     def _get_operation(op_spec):
         # TODO: extract args and kwargs from operation parameters
         def operation(
-            self, *args, body_: Optional[Union[dict, list]] = None, headers_: Optional[dict] = None, **kwargs,
+            self,
+            *args,
+            body_: Optional[Union[dict, list]] = None,
+            headers_: Optional[dict] = None,
+            **kwargs,
         ):
             request_headers = self.common_headers.copy()
             request_headers.update(headers_ or {})

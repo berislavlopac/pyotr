@@ -5,7 +5,7 @@ from importlib import import_module
 from inspect import iscoroutine
 from pathlib import Path
 from types import ModuleType
-from typing import Callable, Union, Optional
+from typing import Callable, Optional, Union
 from urllib.parse import urlsplit
 
 from openapi_core import create_spec
@@ -68,7 +68,9 @@ class Application(Starlette):
                 try:
                     endpoint_fn = getattr(base_module, name)
                 except AttributeError as e:
-                    raise RuntimeError(f"The function `{base_module}.{name}` does not exist!") from e
+                    raise RuntimeError(
+                        f"The function `{base_module}.{name}` does not exist!"
+                    ) from e
                 self.set_endpoint(endpoint_fn, operation_id=operation_id)
 
     def set_endpoint(self, endpoint_fn: Callable, *, operation_id: Optional[str] = None):
@@ -79,7 +81,9 @@ class Application(Starlette):
         if operation_id is None:
             operation_id = endpoint_fn.__name__
         if self.enforce_case and operation_id not in self._operations:
-            operation_id_key = {snakecase(op_id): op_id for op_id in self._operations}.get(operation_id)
+            operation_id_key = {snakecase(op_id): op_id for op_id in self._operations}.get(
+                operation_id
+            )
         else:
             operation_id_key = operation_id
         try:
@@ -91,8 +95,9 @@ class Application(Starlette):
         async def wrapper(request: Request, **kwargs) -> Response:
             openapi_request = await StarletteOpenAPIRequest(request)
             validated_request = RequestValidator(
-                self.spec, custom_formatters=self.custom_formatters,
-                custom_media_type_deserializers=self.custom_media_type_deserializers
+                self.spec,
+                custom_formatters=self.custom_formatters,
+                custom_media_type_deserializers=self.custom_media_type_deserializers,
             ).validate(openapi_request)
             try:
                 validated_request.raise_for_errors()
@@ -115,15 +120,18 @@ class Application(Starlette):
             # TODO: pass a list of operation IDs to specify which responses not to validate
             if self.validate_responses:
                 ResponseValidator(
-                    self.spec, custom_formatters=self.custom_formatters,
-                    custom_media_type_deserializers=self.custom_media_type_deserializers
+                    self.spec,
+                    custom_formatters=self.custom_formatters,
+                    custom_media_type_deserializers=self.custom_media_type_deserializers,
                 ).validate(
                     openapi_request, StarletteOpenAPIResponse(response)
                 ).raise_for_errors()
             return response
 
         for server_path in self._server_paths:
-            self.add_route(server_path + operation.path, wrapper, [operation.method], name=operation_id)
+            self.add_route(
+                server_path + operation.path, wrapper, [operation.method], name=operation_id
+            )
 
     def endpoint(self, operation_id: Union[Callable, str]):
         """ Decorator for setting endpoints.

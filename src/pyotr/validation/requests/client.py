@@ -1,8 +1,8 @@
 from string import Formatter
-from urllib.parse import parse_qs, urlsplit, urljoin, urlencode, urlunsplit
+from urllib.parse import parse_qs, urlencode, urljoin, urlsplit, urlunsplit
 
 from openapi_core.schema.operations.models import Operation
-from openapi_core.validation.request.datatypes import RequestParameters, OpenAPIRequest
+from openapi_core.validation.request.datatypes import OpenAPIRequest, RequestParameters
 
 
 class ClientOpenAPIRequest(OpenAPIRequest):
@@ -11,13 +11,17 @@ class ClientOpenAPIRequest(OpenAPIRequest):
         self._url_parts = urlsplit(host_url)
 
         formatter = Formatter()
-        self.url_vars = [var for _, var, _, _ in formatter.parse(op_spec.path_name) if var is not None]
+        self.url_vars = [
+            var for _, var, _, _ in formatter.parse(op_spec.path_name) if var is not None
+        ]
         self._path_pattern = self._url_parts.path + op_spec.path_name
 
         self.full_url_pattern = urljoin(host_url, self._path_pattern)
         self.method = op_spec.http_method.lower()
         self.body = None
-        self.parameters = RequestParameters(path={}, query=parse_qs(self._url_parts.query), header={}, cookie={},)
+        self.parameters = RequestParameters(
+            path={}, query=parse_qs(self._url_parts.query), header={}, cookie={},
+        )
         self.mimetype = list(op_spec.request_body.content)[0] if op_spec.request_body else None
 
     @property
@@ -43,7 +47,8 @@ class ClientOpenAPIRequest(OpenAPIRequest):
             error_message = f"Incorrect arguments: {self.spec.operation_id} accepts"
             if len_vars:
                 error_message += (
-                    f" {len_vars} positional argument{'s' if len_vars > 1 else ''}:" f" {', '.join(self.url_vars)}"
+                    f" {len_vars} positional argument{'s' if len_vars > 1 else ''}:"
+                    f" {', '.join(self.url_vars)}"
                 )
             else:
                 error_message += " no positional arguments"
