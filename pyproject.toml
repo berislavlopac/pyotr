@@ -34,7 +34,7 @@ mypy_extensions = "^0.4.3"
 
 [tool.black]
 line-length = 96
-target-version = ['py38', 'py38']
+target-version = ['py37', 'py38']
 verbose = false
 skip-string-normalization = false
 
