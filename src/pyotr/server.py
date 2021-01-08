@@ -74,9 +74,10 @@ class Application(Starlette):
                 self.set_endpoint(endpoint_fn, operation_id=operation_id)
 
     def set_endpoint(self, endpoint_fn: Callable, *, operation_id: Optional[str] = None):
-        """ Sets endpoint function for a given `operationId`.
+        """Sets endpoint function for a given `operationId`.
 
-            If the `operation_id` is not given, it will try to determine it based on the function name.
+        If the `operation_id` is not given, it will try to determine it
+        based on the function name.
         """
         if operation_id is None:
             operation_id = endpoint_fn.__name__
@@ -134,20 +135,20 @@ class Application(Starlette):
             )
 
     def endpoint(self, operation_id: Union[Callable, str]):
-        """ Decorator for setting endpoints.
+        """Decorator for setting endpoints.
 
-            If used without arguments, it will try to determine the `operationId` based on the
-            decorated function name:
+        If used without arguments, it will try to determine the `operationId` based on the
+        decorated function name:
 
-                @app.endpoint
-                def foo_bar(request):
-                    # sets the endpoint for operationId fooBar
+            @app.endpoint
+            def foo_bar(request):
+                # sets the endpoint for operationId fooBar
 
-            Otherwise, the `operationId` can be set explicitly:
+        Otherwise, the `operationId` can be set explicitly:
 
-                @app.endpoint('fooBar'):
-                def my_endpoint():
-                    ...
+            @app.endpoint('fooBar'):
+            def my_endpoint():
+                ...
         """
         if callable(operation_id):
             self.set_endpoint(operation_id)
@@ -162,15 +163,13 @@ class Application(Starlette):
 
     @classmethod
     def from_file(cls, path: Union[Path, str], *args, **kwargs) -> "Application":
-        """ Creates an instance of the class by loading the spec from a local file.
-        """
+        """Creates an instance of the class by loading the spec from a local file."""
         spec = get_spec_from_file(path)
         return cls(spec, *args, **kwargs)
 
 
 def _load_module(name: str) -> ModuleType:
-    """ Helper function to load module based on its dotted-string name.
-    """
+    """Helper function to load module based on its dotted-string name."""
     try:
         module = import_module(name)
     except ModuleNotFoundError as e:

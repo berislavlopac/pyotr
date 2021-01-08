@@ -20,7 +20,10 @@ class ClientOpenAPIRequest(OpenAPIRequest):
         self.method = op_spec.http_method.lower()
         self.body = None
         self.parameters = RequestParameters(
-            path={}, query=parse_qs(self._url_parts.query), header={}, cookie={},
+            path={},
+            query=parse_qs(self._url_parts.query),
+            header={},
+            cookie={},
         )
         self.mimetype = list(op_spec.request_body.content)[0] if op_spec.request_body else None
 

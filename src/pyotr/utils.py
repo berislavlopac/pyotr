@@ -15,8 +15,7 @@ class SpecFileTypes(Enum):
 
 
 def get_spec_from_file(path: Union[Path, str]) -> Spec:
-    """ Loads a local file and creates an OpenAPI `Spec` object.
-    """
+    """Loads a local file and creates an OpenAPI `Spec` object."""
     path = Path(path)
     suffix = path.suffix[1:].lower()
     with open(path) as spec_file:
@@ -33,9 +32,7 @@ def get_spec_from_file(path: Union[Path, str]) -> Spec:
 
 
 class Requestable(Protocol):  # pragma: no cover
-    """ Any object (usually a module, class or instance) that implements the
-        `request` method compatible with the `requests` library.
-    """
+    """Implements the `request` method compatible with the `requests` library."""
 
     def request(self, method: str, url: str, **kwargs) -> Any:
         ...
