@@ -49,3 +49,9 @@ dist/
 *.egg-info/
 
 poetry.lock
+
+.mutmut-cache
+
+.hammett-db
+
+.python-version
