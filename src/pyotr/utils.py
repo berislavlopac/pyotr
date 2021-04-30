@@ -2,14 +2,14 @@ import json
 from enum import Enum
 from itertools import chain
 from pathlib import Path
-from typing import Any, Union
+from typing import Any, Union, Callable
 
 import yaml
 from openapi_core.schema.specs.models import Spec
 from typing_extensions import Protocol
 
 
-class SpecFileTypes(Enum):
+class SpecFileTypes(tuple, Enum):
     JSON = ("json",)
     YAML = ("yaml", "yml")
 
@@ -18,17 +18,19 @@ def get_spec_from_file(path: Union[Path, str]) -> Spec:
     """Loads a local file and creates an OpenAPI `Spec` object."""
     path = Path(path)
     suffix = path.suffix[1:].lower()
+
+    if suffix in SpecFileTypes.JSON:
+        spec_load: Callable = json.load
+    elif suffix in SpecFileTypes.YAML:
+        spec_load = yaml.safe_load
+    else:
+        raise RuntimeError(
+            f"Unknown specification file type."
+            f" Accepted types: {', '.join(chain(*SpecFileTypes))}"
+        )
+
     with open(path) as spec_file:
-        if suffix in SpecFileTypes.JSON.value:
-            spec = json.load(spec_file)
-        elif suffix in SpecFileTypes.YAML.value:
-            spec = yaml.safe_load(spec_file)
-        else:
-            raise RuntimeError(
-                f"Unknown specification file type."
-                f" Accepted types: {', '.join(chain(*(i.value for i in SpecFileTypes)))}"
-            )
-    return spec
+        return spec_load(spec_file)
 
 
 class Requestable(Protocol):  # pragma: no cover
