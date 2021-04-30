@@ -31,6 +31,7 @@ pytest-mypy = "^0.7"
 requests = "^2.22"
 pytest = "^6.0"
 mypy_extensions = "^0.4.3"
+black = "^21.4b2"
 
 [tool.black]
 line-length = 96
