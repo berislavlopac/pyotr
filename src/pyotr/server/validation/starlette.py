@@ -1,6 +1,7 @@
 from urllib.parse import urljoin
 
 from openapi_core.validation.request.datatypes import OpenAPIRequest, RequestParameters
+from openapi_core.validation.response.datatypes import OpenAPIResponse
 from starlette.routing import Match
 
 
@@ -32,3 +33,17 @@ class StarletteOpenAPIRequestFactory:
             body=await request.body(),
             mimetype=request.headers.get("content-type"),
         )
+
+
+class StarletteOpenAPIResponseFactory:
+    @classmethod
+    def create(cls, response):
+        return OpenAPIResponse(
+            data=response.body,
+            status_code=response.status_code,
+            mimetype=response.headers.get("content-type"),
+        )
+
+
+StarletteOpenAPIRequest = StarletteOpenAPIRequestFactory.create
+StarletteOpenAPIResponse = StarletteOpenAPIResponseFactory.create

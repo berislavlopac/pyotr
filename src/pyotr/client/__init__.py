@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 from pathlib import Path
 from types import ModuleType
-from typing import Any, Callable, Optional, Type, Union
+from typing import Any, Callable, Optional, Protocol, Type, Union
 
 import httpx
 from openapi_core import create_spec
@@ -10,9 +12,9 @@ from openapi_core.shortcuts import ResponseValidator
 from openapi_core.validation.response.datatypes import OpenAPIResponse
 from stringcase import snakecase
 
-from pyotr.utils import get_spec_from_file, Requestable
-from pyotr.validation.requests import ClientOpenAPIRequest
-from pyotr.validation.responses import ClientOpenAPIResponse
+from pyotr.utils import load_spec_file
+from .request import ClientOpenAPIRequest
+from .response import ClientOpenAPIResponse
 
 
 class Client:
@@ -89,5 +91,12 @@ class Client:
     @classmethod
     def from_file(cls, path: Union[Path, str], **kwargs):
         """Creates an instance of the class by loading the spec from a local file."""
-        spec = get_spec_from_file(path)
+        spec = load_spec_file(path)
         return cls(spec, **kwargs)
+
+
+class Requestable(Protocol):  # pragma: no cover
+    """Implements the `request` method compatible with the `requests` library."""
+
+    def request(self, method: str, url: str, **kwargs) -> Any:
+        ...

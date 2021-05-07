@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections import namedtuple
 from functools import wraps
 from http import HTTPStatus
@@ -19,9 +21,8 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 from stringcase import snakecase
 
-from pyotr.utils import get_spec_from_file
-from pyotr.validation.requests import StarletteOpenAPIRequest
-from pyotr.validation.responses import StarletteOpenAPIResponse
+from pyotr.utils import load_spec_file
+from .validation.starlette import StarletteOpenAPIRequest, StarletteOpenAPIResponse
 
 Operation = namedtuple("Operation", "path method")
 
@@ -162,9 +163,9 @@ class Application(Starlette):
             return decorator
 
     @classmethod
-    def from_file(cls, path: Union[Path, str], *args, **kwargs) -> "Application":
+    def from_file(cls, path: Union[Path, str], *args, **kwargs) -> Application:
         """Creates an instance of the class by loading the spec from a local file."""
-        spec = get_spec_from_file(path)
+        spec = load_spec_file(path)
         return cls(spec, *args, **kwargs)
 
 

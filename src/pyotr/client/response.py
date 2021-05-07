@@ -9,3 +9,6 @@ class ClientOpenAPIResponseFactory(object):
             status_code=response.status_code,
             mimetype=response.headers.get("content-type"),
         )
+
+
+ClientOpenAPIResponse = ClientOpenAPIResponseFactory.create
