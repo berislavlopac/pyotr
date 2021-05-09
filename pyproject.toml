@@ -9,7 +9,7 @@ homepage = "https://pyotr.readthedocs.io"
 repository = "https://github.com/berislavlopac/pyotr"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 pyyaml = "^5.1"
 stringcase = "^1.2"
 typing-extensions = "^3.7"
