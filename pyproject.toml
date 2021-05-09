@@ -9,7 +9,7 @@ homepage = "https://pyotr.readthedocs.io"
 repository = "https://github.com/berislavlopac/pyotr"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 pyyaml = "^5.1"
 stringcase = "^1.2"
 typing-extensions = "^3.7"
@@ -32,10 +32,12 @@ requests = "^2.22"
 pytest = "^6.0"
 mypy_extensions = "^0.4.3"
 black = "^21.4b2"
+pydocstyle = "^6.1.1"
+mypy = "^0.910"
 
 [tool.black]
 line-length = 96
-target-version = ['py37', 'py38']
+target-version = ['py37', 'py38', 'py39']
 verbose = false
 skip-string-normalization = false
 
@@ -49,6 +51,15 @@ show_missing = true
 fail_under = 90
 exclude_lines = [ "pragma: no cover", "@abstract",]
 
+[tool.pydocstyle]
+add-ignore = "D105, D107, D212, D401"
+convention = "google"
+match-dir = "^(?!tests|examples).*"
+
+[tool.mypy]
+mypy_path = "src/"
+ignore_missing_imports = true
+
 [build-system]
-requires = ["poetry>=0.12"]
+requires = ["poetry>=1.0"]
 build-backend = "poetry.masonry.api"

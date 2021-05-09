@@ -1,3 +1,5 @@
+"""Utility classes and functions."""
+
 import json
 from enum import Enum
 from itertools import chain
@@ -10,6 +12,7 @@ from typing_extensions import Protocol
 
 
 class SpecFileTypes(tuple, Enum):
+    """Supported spec file extensions."""
     JSON = ("json",)
     YAML = ("yaml", "yml")
 

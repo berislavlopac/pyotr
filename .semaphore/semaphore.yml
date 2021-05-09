@@ -10,19 +10,19 @@ blocks:
       jobs:
         - name: flake8
           commands:
-            - sem-version python 3.7
+            - sem-version python 3.8
             - checkout
             - python -m pip install -U pip tox
             - python -m tox -e flake8
-        - name: py37
-          commands:
-            - sem-version python 3.7
-            - checkout
-            - python -m pip install -U pip tox
-            - python -m tox -e py37
         - name: py38
           commands:
             - sem-version python 3.8
             - checkout
             - python -m pip install -U pip tox
             - python -m tox -e py38
+        - name: py39
+          commands:
+            - sem-version python 3.9
+            - checkout
+            - python -m pip install -U pip tox
+            - python -m tox -e py39
