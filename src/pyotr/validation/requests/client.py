@@ -1,4 +1,5 @@
 """Pyotr API client."""
+from __future__ import annotations
 from string import Formatter
 from urllib.parse import parse_qs, urlencode, urljoin, urlsplit, urlunsplit
 from typing import Optional, Mapping

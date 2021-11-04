@@ -92,8 +92,8 @@ class Application(Starlette):
             operation_id_key = operation_id
         try:
             operation = self._operations[operation_id_key]
-        except KeyError as e:
-            raise ValueError(f"Unknown operationId: {operation_id}.") from e
+        except KeyError as ex:
+            raise ValueError(f"Unknown operationId: {operation_id}.") from ex
 
         @wraps(endpoint_fn)
         async def wrapper(request: Request, **kwargs) -> Response:
