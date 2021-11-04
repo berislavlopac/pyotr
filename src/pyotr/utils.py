@@ -41,4 +41,5 @@ class Requestable(Protocol):  # pragma: no cover
     """Implements the `request` method compatible with the `requests` library."""
 
     def request(self, method: str, url: str, **kwargs) -> Any:
+        """Construct and send a `Request`."""
         ...

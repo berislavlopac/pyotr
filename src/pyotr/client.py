@@ -1,3 +1,4 @@
+"""Pyotr client."""
 from pathlib import Path
 from types import ModuleType
 from typing import Any, Callable, Optional, Type, Union
@@ -16,6 +17,8 @@ from pyotr.validation.responses import ClientOpenAPIResponse
 
 
 class Client:
+    """Pyotr client class."""
+
     def __init__(
         self,
         spec: Union[Spec, dict],

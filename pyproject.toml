@@ -35,6 +35,7 @@ black = "^21.4b2"
 pydocstyle = "^6.1.1"
 mypy = "^0.910"
 tox = "^3.24.4"
+toml = "^0.10.2"
 
 [tool.black]
 line-length = 96
@@ -53,7 +54,7 @@ fail_under = 90
 exclude_lines = [ "pragma: no cover", "@abstract",]
 
 [tool.pydocstyle]
-add-ignore = "D105, D107, D212, D401"
+add-ignore = "D104, D107, D212, D401"
 convention = "google"
 match-dir = "^(?!tests|examples).*"
 

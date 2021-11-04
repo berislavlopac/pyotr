@@ -1,3 +1,4 @@
+"""Pyotr server."""
 from collections import namedtuple
 from functools import wraps
 from http import HTTPStatus
@@ -27,6 +28,8 @@ Operation = namedtuple("Operation", "path method")
 
 
 class Application(Starlette):
+    """Pyotr server application."""
+
     def __init__(
         self,
         spec: Union[Spec, dict],

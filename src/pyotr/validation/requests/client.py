@@ -1,11 +1,15 @@
+"""Pyotr API client."""
 from string import Formatter
 from urllib.parse import parse_qs, urlencode, urljoin, urlsplit, urlunsplit
+from typing import Optional, Mapping
 
 from openapi_core.schema.operations.models import Operation
 from openapi_core.validation.request.datatypes import OpenAPIRequest, RequestParameters
 
 
 class ClientOpenAPIRequest(OpenAPIRequest):
+    """Client request."""
+
     def __init__(self, host_url: str, op_spec: Operation):
         self.spec = op_spec
         self._url_parts = urlsplit(host_url)
@@ -18,7 +22,7 @@ class ClientOpenAPIRequest(OpenAPIRequest):
 
         self.full_url_pattern = urljoin(host_url, self._path_pattern)
         self.method = op_spec.http_method.lower()
-        self.body = None
+        self.body: Mapping = {}
         self.parameters = RequestParameters(
             path={},
             query=parse_qs(self._url_parts.query),
@@ -29,16 +33,34 @@ class ClientOpenAPIRequest(OpenAPIRequest):
 
     @property
     def url(self):
+        """Request URL."""
         url_parts = self._url_parts._asdict()
         url_parts["path"] = self._path_pattern.format(**self.parameters.path)
         url_parts["query"] = urlencode(self.parameters.query)
-        return urlunsplit(url_parts.values())
+        return urlunsplit(tuple(url_parts.values()))
 
-    def prepare(self, *args, body_=None, headers_=None, **kwargs):
+    def prepare(
+        self,
+        *args,
+        body_: Optional[Mapping] = None,
+        headers_: Optional[Mapping] = None,
+        **kwargs,
+    ) -> ClientOpenAPIRequest:
+        """
+        Prepare request.
+
+        Arguments:
+            *args: Positional arguments are inserted into the URL.
+            body_: Optional request body.
+            headers_: Optional request headers.
+            **kwargs: The keyword arguments are converted to query arguments.
+        """
         self._set_path_params(*args)
-        self.parameters.header.update(headers_ or {})
+        if headers_ is not None:
+            self.parameters.header.update(headers_)
         self.parameters.query = kwargs
-        self.body = body_ or {}
+        if body_ is not None:
+            self.body = body_
         content_type_header = self.parameters.header.pop("content-type", None)
         if content_type_header:
             self.mimetype = content_type_header
@@ -60,4 +82,5 @@ class ClientOpenAPIRequest(OpenAPIRequest):
 
     @property
     def headers(self):
+        """Request headers."""
         return self.parameters.header
