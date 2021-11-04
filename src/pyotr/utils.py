@@ -13,6 +13,7 @@ from typing_extensions import Protocol
 
 class SpecFileTypes(tuple, Enum):
     """Supported spec file extensions."""
+
     JSON = ("json",)
     YAML = ("yaml", "yml")
 

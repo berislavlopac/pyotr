@@ -34,6 +34,7 @@ mypy_extensions = "^0.4.3"
 black = "^21.4b2"
 pydocstyle = "^6.1.1"
 mypy = "^0.910"
+tox = "^3.24.4"
 
 [tool.black]
 line-length = 96
