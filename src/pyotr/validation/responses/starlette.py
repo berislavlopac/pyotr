@@ -8,8 +8,9 @@ class StarletteOpenAPIResponseFactory:
     @classmethod
     def create(cls, response):
         """Create Starlette response."""
+        mimetype, *_ = response.headers.get("content-type", "").split(";")
         return OpenAPIResponse(
             data=response.body,
             status_code=response.status_code,
-            mimetype=response.headers.get("content-type"),
+            mimetype=mimetype,
         )

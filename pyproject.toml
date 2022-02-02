@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyotr"
-version = "0.6.0"
+version = "0.7.0"
 description = "Python OpenAPI-to-REST (and back) framework "
 authors = ["Berislav Lopac <berislav@lopac.net>"]
 license = "MIT"
