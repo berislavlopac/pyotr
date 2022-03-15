@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyotr"
-version = "0.7.0"
+version = "0.7.1"
 description = "Python OpenAPI-to-REST (and back) framework "
 authors = ["Berislav Lopac <berislav@lopac.net>"]
 license = "MIT"
@@ -10,14 +10,14 @@ repository = "https://github.com/berislavlopac/pyotr"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-pyyaml = "^5.1"
-stringcase = "^1.2"
-typing-extensions = "^3.7"
-uvicorn = "^0.12"
-httpx = "^0.15"
-starlette = "^0.13"
+PyYAML = "^6.0"
+stringcase = "^1.2.0"
+typing-extensions = "^4.1.1"
+uvicorn = "^0.17.6"
+httpx = "^0.22.0"
+starlette = "^0.19.0"
 openapi-core = "^0.13.1"
-werkzeug = "^1.0.0"
+Werkzeug = "^2.0.3"
 
 [tool.poetry.extras]
 uvicorn = ["uvicorn"]
@@ -36,6 +36,8 @@ pydocstyle = "^6.1.1"
 mypy = "^0.910"
 tox = "^3.24.4"
 toml = "^0.10.2"
+pytest-spec = "^3.2.0"
+tox-poetry = "^0.4.1"
 
 [tool.black]
 line-length = 96
