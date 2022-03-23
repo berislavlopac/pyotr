@@ -4,11 +4,10 @@ import json
 from enum import Enum
 from itertools import chain
 from pathlib import Path
-from typing import Any, Union, Callable
+from typing import Callable, Union
 
 import yaml
 from openapi_core.schema.specs.models import Spec
-from typing_extensions import Protocol
 
 
 class SpecFileTypes(tuple, Enum):
@@ -35,11 +34,3 @@ def get_spec_from_file(path: Union[Path, str]) -> Spec:
 
     with open(path) as spec_file:
         return spec_load(spec_file)
-
-
-class Requestable(Protocol):  # pragma: no cover
-    """Implements the `request` method compatible with the `requests` library."""
-
-    def request(self, method: str, url: str, **kwargs) -> Any:
-        """Construct and send a `Request`."""
-        ...

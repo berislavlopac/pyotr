@@ -10,10 +10,19 @@ from openapi_core.schema.specs.models import Spec
 from openapi_core.shortcuts import ResponseValidator
 from openapi_core.validation.response.datatypes import OpenAPIResponse
 from stringcase import snakecase
+from typing_extensions import Protocol
 
-from pyotr.utils import get_spec_from_file, Requestable
+from pyotr.utils import get_spec_from_file
 from pyotr.validation.requests import ClientOpenAPIRequest
 from pyotr.validation.responses import ClientOpenAPIResponse
+
+
+class Requestable(Protocol):  # pragma: no cover
+    """Defines the `request` method compatible with the `requests` library."""
+
+    def request(self, method: str, url: str, **kwargs) -> Any:
+        """Construct and send a `Request`."""
+        ...
 
 
 class Client:
