@@ -20,8 +20,7 @@ from starlette.responses import JSONResponse, Response
 from stringcase import snakecase
 
 from pyotr.utils import get_spec_from_file, OperationSpec
-from pyotr.validation.requests import StarletteOpenAPIRequest
-from pyotr.validation.responses import StarletteOpenAPIResponse
+from .validation import request_factory, response_factory
 
 
 class Application(Starlette):
@@ -90,7 +89,7 @@ class Application(Starlette):
 
         @wraps(endpoint_fn)
         async def wrapper(request: Request, **kwargs) -> Response:
-            openapi_request = await StarletteOpenAPIRequest(request)
+            openapi_request = await request_factory(request)
             validated_request = RequestValidator(
                 self.spec,
                 custom_formatters=self.custom_formatters,
@@ -120,9 +119,7 @@ class Application(Starlette):
                     self.spec,
                     custom_formatters=self.custom_formatters,
                     custom_media_type_deserializers=self.custom_media_type_deserializers,
-                ).validate(
-                    openapi_request, StarletteOpenAPIResponse(response)
-                ).raise_for_errors()
+                ).validate(openapi_request, response_factory(response)).raise_for_errors()
             return response
 
         for server_path in self._server_paths:
@@ -165,7 +162,7 @@ class Application(Starlette):
 
 
 def _load_module(name: str) -> ModuleType:
-    """Helper function to load module based on its dotted-string name."""
+    """Helper function to load a module based on its dotted-string name."""
     try:
         module = import_module(name)
     except ModuleNotFoundError as e:

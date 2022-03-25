@@ -6,6 +6,8 @@ from typing import Mapping, Optional
 from urllib.parse import parse_qs, urlencode, urljoin, urlsplit, urlunsplit
 
 from openapi_core.validation.request.datatypes import OpenAPIRequest, RequestParameters
+from openapi_core.validation.response.datatypes import OpenAPIResponse
+from requests import Response
 
 
 class ClientOpenAPIRequest(OpenAPIRequest):
@@ -91,3 +93,12 @@ class ClientOpenAPIRequest(OpenAPIRequest):
     def headers(self):
         """Request headers."""
         return self.parameters.header
+
+
+def client_response_factory(response: Response) -> OpenAPIResponse:
+    """Create client response."""
+    return OpenAPIResponse(
+        data=response.content,
+        status_code=response.status_code,
+        mimetype=response.headers.get("content-type"),
+    )

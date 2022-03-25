@@ -16,7 +16,7 @@ blocks:
             - python -m pip install -U pip poetry tox-poetry
             - python -m tox -e checks
   - name: Unit tests
-    dependencies: []
+    dependencies: ["Code checks"]
     task:
       jobs:
         - name: tests

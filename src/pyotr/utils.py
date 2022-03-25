@@ -9,7 +9,7 @@ from typing import Callable, Dict, Union
 
 import yaml
 from openapi_core.spec.paths import SpecPath
-from stringcase import camelcase, pascalcase
+from stringcase import camelcase
 
 
 class OperationSpec:
@@ -24,14 +24,12 @@ class OperationSpec:
         """
         Looks for values of the specification fields.
 
-        If besides the exact match of a name, also check camel and Pascal case.
+        If the exact match of a name fails, also checks for the camel case version.
         """
         if name in self.spec:
             return self.spec[name]
-        if camelcase(name) in self.spec:
-            return self.spec[camelcase(name)]
-        if pascalcase(name) in self.spec:
-            return self.spec[camelcase(name)]
+        if (camelcase_name := camelcase(name)) in self.spec:
+            return self.spec[camelcase_name]
         return super().__getattribute__(name)
 
     @classmethod

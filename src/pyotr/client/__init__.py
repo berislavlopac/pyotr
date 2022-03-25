@@ -11,8 +11,7 @@ from openapi_core.validation.response.datatypes import OpenAPIResponse
 from stringcase import snakecase
 
 from pyotr.utils import get_spec_from_file, OperationSpec
-from pyotr.validation.requests import ClientOpenAPIRequest
-from pyotr.validation.responses import ClientOpenAPIResponse
+from .validation import client_response_factory, ClientOpenAPIRequest
 
 
 class Requestable(Protocol):  # pragma: no cover
@@ -33,7 +32,7 @@ class Client:
         server_url: Optional[str] = None,
         client: Union[ModuleType, Requestable] = httpx,
         request_class: Type[ClientOpenAPIRequest] = ClientOpenAPIRequest,
-        response_factory: Callable[[Any], OpenAPIResponse] = ClientOpenAPIResponse,
+        response_factory: Callable[[Any], OpenAPIResponse] = client_response_factory,
         headers: Optional[dict] = None,
     ):
         if not isinstance(spec, SpecPath):
