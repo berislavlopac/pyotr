@@ -36,6 +36,7 @@ tox = "^3.24.5"
 toml = "^0.10.2"
 pytest-spec = "^3.2.0"
 tox-poetry = "^0.4.1"
+Jinja2 = "<3.1"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

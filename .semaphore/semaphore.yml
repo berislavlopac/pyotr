@@ -5,7 +5,8 @@ agent:
     type: e1-standard-2
     os_image: ubuntu1804
 blocks:
-  - name: Test
+  - name: Code checks
+    dependencies: []
     task:
       jobs:
         - name: checks
@@ -14,7 +15,11 @@ blocks:
             - checkout
             - python -m pip install -U pip poetry tox-poetry
             - python -m tox -e checks
-        - name: Python Version
+  - name: Unit tests
+    dependencies: []
+    task:
+      jobs:
+        - name: tests
           matrix:
             - env_var: PY_VERSION
               values: [ "3.8", "3.9" ]
@@ -23,3 +28,17 @@ blocks:
             - checkout
             - python -m pip install -U pip poetry tox-poetry
             - python -m tox -e py"${PY_VERSION//.}"
+  - name: Documentation
+    dependencies: ["Code checks"]
+    task:
+      jobs:
+        - name: docs
+          commands:
+            - sem-version python 3.8
+            - checkout
+            - python -m pip install -U pip mkdocs "jinja2<3.1"
+            - python -m mkdocs build
+      epilogue:
+        on_pass:
+          commands:
+            - artifact push job site
