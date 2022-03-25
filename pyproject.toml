@@ -15,35 +15,30 @@ stringcase = "^1.2.0"
 typing-extensions = "^4.1.1"
 uvicorn = "^0.17.6"
 httpx = "^0.22.0"
-starlette = ">=0.14,<1.0"
+starlette = "^0.19.0"
 openapi-core = "^0.14.2"
-Werkzeug = "^2.0.3"
 
 [tool.poetry.extras]
 uvicorn = ["uvicorn"]
 
 [tool.poetry.dev-dependencies]
-mkdocs = "^1.0"
-pytest-asyncio = "^0.14"
-pytest-cov = "^2.7"
-pytest-flake8 = "^1.0"
-pytest-mypy = "^0.8.1"
-requests = "^2.22"
-pytest = "^6.0"
-mypy_extensions = "^0.4.3"
-black = "^21.4b2"
+mkdocs = "^1.2.3"
+pytest-asyncio = "^0.18.3"
+pytest-cov = "^3.0.0"
+pytest-flake8 = "^1.1.1"
+pytest-mypy = "^0.9.1"
+requests = "^2.27.1"
+pytest = "^7.1.1"
+black = "^22.1.0"
 pydocstyle = "^6.1.1"
-mypy = "^0.910"
-tox = "^3.24.4"
+mypy = "^0.942"
+tox = "^3.24.5"
 toml = "^0.10.2"
 pytest-spec = "^3.2.0"
 tox-poetry = "^0.4.1"
 
-[tool.black]
-line-length = 96
-target-version = ['py37', 'py38', 'py39']
-verbose = false
-skip-string-normalization = false
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
 
 [tool.coverage.run]
 source = [ "src/pyotr/", ]
@@ -54,6 +49,12 @@ skip_covered = true
 show_missing = true
 fail_under = 90
 exclude_lines = [ "pragma: no cover", "@abstract",]
+
+[tool.black]
+line-length = 96
+target-version = ['py37', 'py38', 'py39']
+verbose = false
+skip-string-normalization = false
 
 [tool.pydocstyle]
 add-ignore = "D104, D107, D212, D401"

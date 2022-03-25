@@ -12,17 +12,14 @@ blocks:
           commands:
             - sem-version python 3.8
             - checkout
-            - python -m pip install -U pip tox
+            - python -m pip install -U pip poetry tox-poetry
             - python -m tox -e checks
-        - name: py38
+        - name: Python Version
+          matrix:
+            - env_var: PY_VERSION
+              values: [ "3.8", "3.9" ]
           commands:
-            - sem-version python 3.8
+            - sem-version python $PY_VERSION
             - checkout
-            - python -m pip install -U pip tox
-            - python -m tox -e py38
-        - name: py39
-          commands:
-            - sem-version python 3.9
-            - checkout
-            - python -m pip install -U pip tox
-            - python -m tox -e py39
+            - python -m pip install -U pip poetry tox-poetry
+            - python -m tox -e py"${PY_VERSION//.}"

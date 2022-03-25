@@ -1,7 +1,7 @@
 """Pyotr client."""
 from pathlib import Path
 from types import ModuleType
-from typing import Any, Callable, Optional, Type, Union
+from typing import Any, Callable, Optional, Protocol, Type, Union
 
 import httpx
 from openapi_core import create_spec
@@ -9,7 +9,6 @@ from openapi_core.shortcuts import ResponseValidator
 from openapi_core.spec.paths import SpecPath
 from openapi_core.validation.response.datatypes import OpenAPIResponse
 from stringcase import snakecase
-from typing_extensions import Protocol
 
 from pyotr.utils import get_spec_from_file, OperationSpec
 from pyotr.validation.requests import ClientOpenAPIRequest
