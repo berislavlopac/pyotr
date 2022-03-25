@@ -5,7 +5,6 @@ site_description: Pyotr is a Python library for serving and consuming REST APIs 
 site_author: Berislav Lopac <berislav@lopac.net>
 theme:
   name: readthedocs
-  custom_dir: docs_custom
 nav:
   - Introduction: 'index.md'
   - Server: 'server.md'
