@@ -11,7 +11,7 @@ from pyotr.server import Application
 def test_server_from_file(config, filename):
     file_path = config.test_dir / filename
     app = Application.from_file(file_path, module=config.endpoint_base)
-    assert app.spec.info.title == "Test Spec"
+    assert app.spec["info"]["title"] == "Test Spec"
 
 
 def test_server_from_file_raises_exception_if_unknown_type(config):
@@ -110,7 +110,7 @@ async def test_server_wraps_endpoint_function_result_with_jsonresponse(spec_dict
     request = Request(
         {
             "type": "http",
-            "path": app.spec.servers[0].url + route.path,
+            "path": app.spec["servers"][0]["url"] + route.path,
             "query_string": "",
             "headers": {},
             "app": app,
@@ -134,7 +134,7 @@ async def test_server_wraps_async_endpoint_function_result_with_jsonresponse(spe
     request = Request(
         {
             "type": "http",
-            "path": app.spec.servers[0].url + route.path,
+            "path": app.spec["servers"][0]["url"] + route.path,
             "query_string": "",
             "headers": {},
             "app": app,

@@ -1,5 +1,4 @@
 """Pyotr server."""
-from collections import namedtuple
 from functools import wraps
 from http import HTTPStatus
 from importlib import import_module
@@ -11,8 +10,8 @@ from urllib.parse import urlsplit
 
 from openapi_core import create_spec
 from openapi_core.exceptions import OpenAPIError
-from openapi_core.schema.specs.models import Spec
 from openapi_core.shortcuts import RequestValidator, ResponseValidator
+from openapi_core.spec.paths import SpecPath
 from openapi_core.validation.exceptions import InvalidSecurity
 from starlette.applications import Starlette
 from starlette.exceptions import HTTPException
@@ -20,11 +19,9 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 from stringcase import snakecase
 
-from pyotr.utils import get_spec_from_file
+from pyotr.utils import get_spec_from_file, OperationSpec
 from pyotr.validation.requests import StarletteOpenAPIRequest
 from pyotr.validation.responses import StarletteOpenAPIResponse
-
-Operation = namedtuple("Operation", "path method")
 
 
 class Application(Starlette):
@@ -32,7 +29,7 @@ class Application(Starlette):
 
     def __init__(
         self,
-        spec: Union[Spec, dict],
+        spec: Union[SpecPath, dict],
         *,
         module: Optional[Union[str, ModuleType]] = None,
         validate_responses: bool = True,
@@ -40,20 +37,16 @@ class Application(Starlette):
         **kwargs,
     ):
         super().__init__(**kwargs)
-        if not isinstance(spec, Spec):
+        if not isinstance(spec, SpecPath):
             spec = create_spec(spec)
         self.spec = spec
         self.validate_responses = validate_responses
         self.enforce_case = enforce_case
-        self._server_paths = {urlsplit(server.url).path for server in self.spec.servers}
         self.custom_formatters = None
         self.custom_media_type_deserializers = None
 
-        self._operations = {
-            oper.operation_id: Operation(path, method)
-            for path, path_spec in spec.paths.items()
-            for method, oper in path_spec.operations.items()
-        }
+        self._operations = OperationSpec.get_all(self.spec)
+        self._server_paths = {urlsplit(server["url"]).path for server in self.spec["servers"]}
 
         if module is not None:
             if isinstance(module, str):

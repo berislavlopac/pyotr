@@ -1,28 +1,29 @@
 """Pyotr API client."""
 from __future__ import annotations
-from string import Formatter
-from urllib.parse import parse_qs, urlencode, urljoin, urlsplit, urlunsplit
-from typing import Optional, Mapping
 
-from openapi_core.schema.operations.models import Operation
+from string import Formatter
+from typing import Mapping, Optional
+from urllib.parse import parse_qs, urlencode, urljoin, urlsplit, urlunsplit
+
 from openapi_core.validation.request.datatypes import OpenAPIRequest, RequestParameters
 
 
 class ClientOpenAPIRequest(OpenAPIRequest):
     """Client request."""
 
-    def __init__(self, host_url: str, op_spec: Operation):
+    def __init__(self, host_url: str, op_spec):
         self.spec = op_spec
         self._url_parts = urlsplit(host_url)
+        self.mimetype = None
 
         formatter = Formatter()
         self.url_vars = [
-            var for _, var, _, _ in formatter.parse(op_spec.path_name) if var is not None
+            var for _, var, _, _ in formatter.parse(op_spec.path) if var is not None
         ]
-        self._path_pattern = self._url_parts.path + op_spec.path_name
+        self._path_pattern = self._url_parts.path + op_spec.path
 
         self.full_url_pattern = urljoin(host_url, self._path_pattern)
-        self.method = op_spec.http_method.lower()
+        self.method = op_spec.method.lower()
         self.body: Mapping = {}
         self.parameters = RequestParameters(
             path={},
@@ -30,7 +31,12 @@ class ClientOpenAPIRequest(OpenAPIRequest):
             header={},
             cookie={},
         )
-        self.mimetype = list(op_spec.request_body.content)[0] if op_spec.request_body else None
+        content = getattr(op_spec, "request_body", {}).get("content", {})
+        default_mimetipe = "application/json"
+        if content:
+            self.mimetype = (
+                default_mimetipe if default_mimetipe in content else list(content)[0]
+            )
 
     @property
     def url(self):

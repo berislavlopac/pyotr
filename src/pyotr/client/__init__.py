@@ -5,14 +5,13 @@ from typing import Any, Callable, Optional, Type, Union
 
 import httpx
 from openapi_core import create_spec
-from openapi_core.schema.servers.models import Server
-from openapi_core.schema.specs.models import Spec
 from openapi_core.shortcuts import ResponseValidator
+from openapi_core.spec.paths import SpecPath
 from openapi_core.validation.response.datatypes import OpenAPIResponse
 from stringcase import snakecase
 from typing_extensions import Protocol
 
-from pyotr.utils import get_spec_from_file
+from pyotr.utils import get_spec_from_file, OperationSpec
 from pyotr.validation.requests import ClientOpenAPIRequest
 from pyotr.validation.responses import ClientOpenAPIResponse
 
@@ -30,7 +29,7 @@ class Client:
 
     def __init__(
         self,
-        spec: Union[Spec, dict],
+        spec: Union[SpecPath, dict],
         *,
         server_url: Optional[str] = None,
         client: Union[ModuleType, Requestable] = httpx,
@@ -38,7 +37,7 @@ class Client:
         response_factory: Callable[[Any], OpenAPIResponse] = ClientOpenAPIResponse,
         headers: Optional[dict] = None,
     ):
-        if not isinstance(spec, Spec):
+        if not isinstance(spec, SpecPath):
             spec = create_spec(spec)
         self.spec = spec
         self.client = client
@@ -47,27 +46,26 @@ class Client:
         self.common_headers = headers or {}
 
         if server_url is None:
-            server_url = self.spec.servers[0].url
+            server_url = self.spec["servers"][0]["url"]
         else:
             server_url = server_url.rstrip("/")
-            for server in self.spec.servers:
-                if server_url == server.url:
+            for server in self.spec["servers"]:
+                if server_url == server["url"]:
                     break
             else:
-                self.spec.servers.append(Server(server_url))
+                self.spec["servers"].append({"url": server_url})
         self.server_url = server_url
         self.validator = ResponseValidator(self.spec)
 
-        for path_spec in spec.paths.values():
-            for op_spec in path_spec.operations.values():
-                setattr(
-                    self,
-                    snakecase(op_spec.operation_id),
-                    self._get_operation(op_spec).__get__(self),
-                )
+        for operation_id, op_spec in OperationSpec.get_all(spec).items():
+            setattr(
+                self,
+                snakecase(operation_id),
+                self._get_operation(op_spec).__get__(self),
+            )
 
     @staticmethod
-    def _get_operation(op_spec):
+    def _get_operation(op_spec: OperationSpec):
         # TODO: extract args and kwargs from operation parameters
         def operation(
             self,
@@ -93,9 +91,9 @@ class Client:
             self.validator.validate(request, response).raise_for_errors()
             return response
 
-        operation.__doc__ = op_spec.summary or op_spec.operation_id
-        if op_spec.description:
-            operation.__doc__ += f"\n\n{op_spec.description}"
+        operation.__doc__ = op_spec.spec.get("summary") or op_spec.operation_id
+        if description := op_spec.spec.get("description"):
+            operation.__doc__ = f"{ operation.__doc__ }\n\n{ description }"
         return operation
 
     @classmethod

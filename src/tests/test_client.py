@@ -80,7 +80,7 @@ def test_unknown_server_url_gets_added_to_spec(spec_dict):
 def test_known_server_url_gets_selected(spec_dict):
     client = Client(spec_dict, server_url="foo.bar")
     assert client.server_url == "foo.bar"
-    assert client.spec.servers[-1].url == "foo.bar"
+    assert client.spec["servers"][-1]["url"] == "foo.bar"
 
 
 def test_use_first_server_url_as_default(spec_dict):
@@ -98,7 +98,8 @@ def test_incorrect_endpoint_raises_error(spec_dict):
 def test_from_file(config, filename):
     file_path = config.test_dir / filename
     client = Client.from_file(file_path)
-    assert client.spec.info.title == "Test Spec"
+
+    assert client.spec["info"]["title"] == "Test Spec"
 
 
 def test_from_file_raises_exception_if_unknown_type(config):

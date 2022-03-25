@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyotr"
-version = "0.7.2"
+version = "0.8.0"
 description = "Python OpenAPI-to-REST (and back) framework "
 authors = ["Berislav Lopac <berislav@lopac.net>"]
 license = "MIT"
@@ -16,7 +16,7 @@ typing-extensions = "^4.1.1"
 uvicorn = "^0.17.6"
 httpx = "^0.22.0"
 starlette = ">=0.14,<1.0"
-openapi-core = "^0.13.1"
+openapi-core = "^0.14.2"
 Werkzeug = "^2.0.3"
 
 [tool.poetry.extras]
