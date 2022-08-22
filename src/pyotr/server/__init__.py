@@ -87,14 +87,16 @@ class Application(Starlette):
         except KeyError as ex:
             raise ValueError(f"Unknown operationId: {operation_id}.") from ex
 
+        request_validator = RequestValidator(
+            self.spec,
+            custom_formatters=self.custom_formatters,
+            custom_media_type_deserializers=self.custom_media_type_deserializers,
+        )
+
         @wraps(endpoint_fn)
         async def wrapper(request: Request, **kwargs) -> Response:
             openapi_request = await request_factory(request)
-            validated_request = RequestValidator(
-                self.spec,
-                custom_formatters=self.custom_formatters,
-                custom_media_type_deserializers=self.custom_media_type_deserializers,
-            ).validate(openapi_request)
+            validated_request = request_validator.validate(openapi_request)
             try:
                 validated_request.raise_for_errors()
             except InvalidSecurity as ex:
