@@ -5,7 +5,7 @@ from importlib import import_module
 from inspect import iscoroutine
 from pathlib import Path
 from types import ModuleType
-from typing import Callable, Optional, Union
+from typing import Any, Callable, Optional, Union, Dict
 from urllib.parse import urlsplit
 
 from openapi_core import create_spec
@@ -33,6 +33,7 @@ class Application(Starlette):
         module: Optional[Union[str, ModuleType]] = None,
         validate_responses: bool = True,
         enforce_case: bool = True,
+        custom_formatters : Optional[Dict[str, Any]] = None,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -41,7 +42,7 @@ class Application(Starlette):
         self.spec = spec
         self.validate_responses = validate_responses
         self.enforce_case = enforce_case
-        self.custom_formatters = None
+        self.custom_formatters = custom_formatters
         self.custom_media_type_deserializers = None
 
         self._operations = OperationSpec.get_all(self.spec)
